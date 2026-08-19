@@ -1,0 +1,35 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "process",
+            "label": "Build Raylib App",
+            "command": "C:\\w64devkit\\bin\\gcc.exe",
+            "args": [
+                "-g",
+                "${file}",
+                "-I${workspaceFolder}/raylib/include",
+                "-L${workspaceFolder}/raylib/lib",
+                "-lraylib",
+                "-lopengl32",
+                "-lgdi32",
+                "-lwinmm",
+                "-Wl,--allow-shlib-undefined",
+                "-o",
+                "${workspaceFolder}/${fileBasenameNoExtension}.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                "PATH": "C:\\w64devkit\\bin;${env:PATH}"
+            }
+            },
+            "problemMatcher": ["$gcc"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            
+        }
+    ]
+}
