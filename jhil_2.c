@@ -82,20 +82,20 @@ int main()
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        DrawText("TYPING NINJA - PERMANENT RECORDS", 250, 40, 40, BLUE);
-        DrawText("Press tap ENTER to add a score", 350, 80, 30, BLUE);
+        DrawText("TYPING NINJA - PERMANENT RECORDS", 110, 40, 40, BLUE);
+        DrawText("Press tap ENTER to add a score", 310, 80, 30, BLUE);
 
         DrawText(TextFormat("High Score: %d", myStats.highScore), 150, 160, 40, BLUE);
-        DrawText(TextFormat("Low Score:  %d", myStats.lowScore),  450, 160, 40, BLUE);
+        DrawText(TextFormat("Low Score:  %d", myStats.lowScore),  500, 160, 40, BLUE);
 
-        DrawText("Previous Records:", 150, 210, 40, BLUE);
+        DrawText("Previous Records:", 150, 250, 40, BLUE);
         
         if (myStats.historyCount == 0) {
             DrawText("No games played yet!", 150, 250, 40, BLUE);
         } else {
             for (int i = 0; i < myStats.historyCount; i++) {
           DrawText(TextFormat("Game %d:  %d points", i + 1, myStats.history[i].score), 
-                         150, 300 + (i * 30), 30, BLUE);
+                         150, 400 + (i * 30), 30, BLUE);
             }
         }
 
