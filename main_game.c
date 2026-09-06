@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 #include "raylib.h"
 #include<stdio.h>
 #include<string.h>
@@ -340,11 +339,11 @@ case NAME_ENTRY:
     currentScreen = LEVEL_SELECT;
     }
     else if (key == KEY_M)
-    {if(maxDifficultyUnlocked>=DIFF_MEDIUM)
+    {if(maxdifficultyunlocked>=DIFF_MEDIUM)
      currentScreen = LEVEL_SELECT;
      }
      else if (key == KEY_H)
-     {if(maxDifficultyUnlocked>=DIFF_HARD)
+     {if(maxdifficultyunlocked>=DIFF_HARD)
     currentScreen = LEVEL_SELECT;
      }
 
@@ -456,4 +455,3 @@ cleanup:
 }
 
 
->>>>>>> Stashed changes
