@@ -12,8 +12,7 @@
 #define MAX_LINE 50
 #define MAX_LEN 30
 #define MAX_WORD_ONSCREEN 5
-#define TARGET 100
-#define bottom_line_y 350
+#define bottom_line_y 750
 
 
 
@@ -47,15 +46,16 @@ bool active;
 
 
 
-GameScreen currentscreen=TITLE;
+GameScreen currentScreen=TITLE;
 Difficultymode selecteddiff=DIFF_EASY;
 int selectedlevel=1;
 int maxdifficultyunlocked=DIFF_EASY;
 
 
-float speed=120.0f;
-float time=60.0f;
+float speed=0.0f;
+float timer=0.0f;
 int score=0;
+int target=0;
 bool GAME_OVER=false;
 bool complete_target=false;
 float spawntime=0.0f;
@@ -97,7 +97,6 @@ return totalword;
 void initgameplay()
 {
         {
- time=60.0f;
 score=0;
  GAME_OVER=false;
  bool complete_target=false;
@@ -131,7 +130,7 @@ void spawnword(int index)
 
 void updatefallingword(float dt)
 {
-   time-=dt;
+   timer-=dt;
  spawntime+=dt;
 if(spawntime>=spawninterval)
 {
@@ -250,7 +249,8 @@ void DrawButton(const char *text, int centerX, int y,int fontSize, int paddingX,
 }
 int main()
 {
-InitWindow(screenwidth, screenheight, "Typing Ninja-Framework");
+InitWindow(screenwidth, screenheight, "Typing Ninja");
+srand(time(NULL));
 SetExitKey(0);
 InitAudioDevice();
 SetTargetFPS(60);
@@ -258,7 +258,7 @@ SetTargetFPS(60);
 Texture2D ninjaLogo = LoadTexture("ninja_logo.png");
 Music backgroundMusic = LoadMusicStream("background_music.mp3");
 PlayMusicStream(backgroundMusic);
-GameScreen currentScreen = TITLE;
+//GameScreen currentScreen = TITLE;
 char playerName[30]="" ;
 int nameLength=0;
 
@@ -267,15 +267,20 @@ int nameLength=0;
     UpdateMusicStream(backgroundMusic);
 
      int key = GetKeyPressed();
+     float deltatime=GetFrameTime();
 
     switch (currentScreen)
     {
     case TITLE:
+    {
     if (key == KEY_ENTER)
+    {
     currentScreen = MAIN_MENU;
      break;
-
+    }
+    }
     case MAIN_MENU:
+    {
     if (key == KEY_P)
     {
     nameLength = 0;
@@ -288,12 +293,14 @@ int nameLength=0;
      }
     else if (key == KEY_X)
     {
-    goto cleanup;
+    //later;
     }
                 
     if (key == KEY_BACKSPACE)
+    {
     currentScreen = TITLE;
-    break;
+    break;}
+    }
     
 case NAME_ENTRY:
 {
@@ -334,36 +341,182 @@ case NAME_ENTRY:
 }
 
     case DIFFICULTY:
+    {
     if (key == KEY_E)
     {
+        selecteddiff=DIFF_EASY;
     currentScreen = LEVEL_SELECT;
     }
     else if (key == KEY_M)
     {if(maxdifficultyunlocked>=DIFF_MEDIUM)
+        {
+                    selecteddiff=DIFF_MEDIUM;
+
      currentScreen = LEVEL_SELECT;
+        }
      }
      else if (key == KEY_H)
      {if(maxdifficultyunlocked>=DIFF_HARD)
+        {
+
+                selecteddiff=DIFF_HARD;
+
     currentScreen = LEVEL_SELECT;
      }
-
+    }
     if (key == KEY_BACKSPACE)
+    {
     currentScreen = MAIN_MENU;
+    }
     break;
-
+    }
     case LEVEL_SELECT:
-    if (key == KEY_ONE || key == KEY_TWO|| key==KEY_THREE)
-    currentScreen = GAMEPLAY;
+    {
+    if(key==KEY_ONE)
+    {
+        selectedlevel=1;
+    }
+    else if(key==KEY_TWO)
+    {
+        selectedlevel=2;
+    }
+    else if(key==KEY_THREE)
+    {
+        selectedlevel=3;
+    }
+    if(key==KEY_ENTER)
+    {
+
+        initgameplay();
+        if(selecteddiff==DIFF_EASY)
+        {
+            speed=80.0f;
+            if(selectedlevel==1)
+            {
+                timer=60.0f;
+                target=100;
+                loadword("word.txt");
+                
+            }
+            else if(selectedlevel==2)
+            {
+                timer=50.0f;
+                target=200;
+                loadword("word.txt");
+            }
+            else
+            {
+                timer=40.0f;
+                target=300;
+                loadword("word.txt");
+   
+            }
+        }
+        else if(selecteddiff==DIFF_MEDIUM)
+        {
+                        speed=120.0f;
+            if(selectedlevel==1)
+            {
+                timer=40.0f;
+                target=100;
+                loadword("word.txt");
+                
+            }
+            else if(selectedlevel==2)
+            {
+                timer=35.0f;
+                target=200;
+                loadword("word.txt");
+            }
+            else
+            {
+                timer=30.0f;
+                target=300;
+                loadword("word.txt");
+   
+            }
+
+        }
+        else
+        {
+                        speed=160.0f;
+            if(selectedlevel==1)
+            {
+                timer=30.0f;
+                target=100;
+                loadword("word.txt");
+                
+            }
+            else if(selectedlevel==2)
+            {
+                timer=25.0f;
+                target=200;
+                loadword("word.txt");
+            }
+            else
+            {
+                timer=20.0f;
+                target=300;
+                loadword("word.txt");
+   
+            }
+
+        }
+            currentScreen = GAMEPLAY;
+
+
+    }
+
 
     if (key == KEY_BACKSPACE)
+    {
     currentScreen = DIFFICULTY;
+    }
     break;
-
+    }
     case GAMEPLAY:
+    {
+        updatefallingword(deltatime);
+        handleplayertyping();
+        if(score>=target)
+        {
+            complete_target=true;
+            if(selecteddiff==DIFF_EASY&&selectedlevel==3)
+            {
+                if(maxdifficultyunlocked<DIFF_MEDIUM)
+                {
+                    maxdifficultyunlocked=DIFF_MEDIUM;
+                }
+            }
+                        if(selecteddiff==DIFF_MEDIUM&&selectedlevel==3)
+            {
+                if(maxdifficultyunlocked<DIFF_HARD)
+                {
+                    maxdifficultyunlocked=DIFF_HARD;
+                }
+            }
+currentScreen=GAMEOVER;
+        }
+        if(timer<=0.0f)
+        {
+            timer=0.0f;
+            complete_target=false;
+            currentScreen=GAMEOVER;
+
+        }
      if (key == KEY_ESCAPE)
     currentScreen = MAIN_MENU;
     break;
     }
+    case GAMEOVER:
+    {
+        if(key==KEY_ENTER)
+        {
+            currentScreen=MAIN_MENU;
+            break;
+        }
+    }
+}
         BeginDrawing();
 
         ClearBackground(RAYWHITE);
@@ -416,8 +569,24 @@ case NAME_ENTRY:
         DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 130 });
         DrawButton("SELECT DIFFICULTY",screenwidth/2,120,40,25,12);
         DrawButton("[E]EASY",screenwidth/2,210,28,25,10);
+        if(maxdifficultyunlocked>=DIFF_MEDIUM)
+        {
         DrawButton("[M]MEDIUM",screenwidth/2,280,28,25,10);
-        DrawButton("[H]HARD",screenwidth/2,350,28,25,10);
+        }
+        else
+        {
+            DrawButton("[M]MEDIUM-LOCKED",screenwidth/2,280,28,25,10);
+        }
+        if(maxdifficultyunlocked>=DIFF_HARD)
+        {
+        DrawButton("[M]HARD",screenwidth/2,350,28,25,10);
+        }
+        else
+        {
+            DrawButton("[M]HARD-LOCKED",screenwidth/2,350,28,25,10);
+        }
+
+
         DrawButton("BACKSPACE : Go back",screenwidth/2,450,18,20,8);
 
         break;
@@ -430,25 +599,63 @@ case NAME_ENTRY:
        DrawButton("[1] Level 1",screenwidth/2,220,28,25,10);
        DrawButton("[2] Level 2",screenwidth/2,300,28,25,10);
        DrawButton("[3] Level 3",screenwidth/2,380,28,25,10);
+       DrawButton("press [Enter] to start level",screenwidth/2,460,28,25,10);
+       DrawButton("press [Backspace] to return",screenwidth/2,540,28,25,10);
+    
+
         break;
             }
 
         case GAMEPLAY:
          {
-        DrawRectangle(0,0,screenwidth,screenheight,(Color){0,0,0,100})  ;
-        DrawButton("Press [ESC] for menu",screenwidth/2,500,40,20,8);
-        break;
+            DrawLine(0,bottom_line_y,screenwidth,bottom_line_y,RED);
+                DrawText(TextFormat("SCORE: %d",score),750,20,40,WHITE);
+    DrawText(TextFormat("TIME: %.1f s",timer),400,20,40,WHITE);
+    DrawText("TARGET: 100",50,20,40,WHITE);
+
+        for(int i=0;i<MAX_WORD_ONSCREEN;i++)
+        {
+            if(screenword[i].active)
+            {
+             DrawText(screenword[i].text,screenword[i].position.x,screenword[i].position.y,40,RED);
+
+
             }
         }
+                     DrawText(TextFormat("INPUT:%s",inputword),50,750,40,WHITE);
 
+
+        //DrawButton("Press [ESC] for menu",screenwidth/2,750,40,20,8);
+        break;
+            }
+            case GAMEOVER:
+            {
+                if(complete_target)
+                {
+                    DrawText("LEVEL COMPLETED",screenwidth/3,screenheight/2+20,50,RED);
+DrawText(TextFormat("SCORE: %d",score),screenwidth/2-25,screenheight/2-100,50,RED);
+
+                }
+                else
+                {
+                    DrawText("GAME OVER",screenwidth/2-200,screenheight/2-200,50,RED);
+DrawText(TextFormat("SCORE: %d",score),screenwidth/2-25,screenheight/2-100,50,RED);
+DrawText("PRESS [ENTER] TO RETURN",screenwidth/3-150,screenheight/2,50,RED);
+
+                }
+                DrawText("PRESS [ENTER] TO RETURN",screenwidth/3-150,screenheight/2,50,RED);
+break;
+            }
+        }
+    
         EndDrawing();
-    }
 
-cleanup:
-    UnloadTexture(ninjaLogo);
+    }
+                UnloadTexture(ninjaLogo);
     StopMusicStream(backgroundMusic); 
     UnloadMusicStream(backgroundMusic);
     CloseAudioDevice();
+
     CloseWindow();
 
     return 0;
