@@ -1,3 +1,7 @@
-/main.exe
-/tempCodeRunnerFile.c
-/tempCodeRunnerFile.exe
+# Executable files
+*.exe
+
+# VS Code temporary files
+.vscode/
+tempCodeRunnerFile.c
+tempCodeRunnerFile.exe
