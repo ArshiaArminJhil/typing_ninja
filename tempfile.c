@@ -23,7 +23,6 @@ MAIN_MENU,
  NAME_ENTRY,
  DIFFICULTY,     
 LEVEL_SELECT,
-LEVEL_READY,
 GAMEPLAY,
 GAMEOVER
 } GameScreen;
@@ -82,7 +81,6 @@ return 0;
     }
     else
     {
-        
 while(fscanf(f,"%29s",word[totalword])==1)
 {
     totalword++;
@@ -403,13 +401,13 @@ case NAME_ENTRY:
             else if(selectedlevel==2)
             {
                 timer=50.0f;
-                target=120;
+                target=200;
                 loadword("word.txt");
             }
             else
             {
                 timer=40.0f;
-                target=150;
+                target=300;
                 loadword("word.txt");
    
             }
@@ -464,7 +462,7 @@ case NAME_ENTRY:
             }
 
         }
-            currentScreen = LEVEL_READY;
+            currentScreen = GAMEPLAY;
 
 
     }
@@ -475,18 +473,6 @@ case NAME_ENTRY:
     currentScreen = DIFFICULTY;
     }
     break;
-    }
-    case LEVEL_READY:
-    {
-        if (key == KEY_ENTER)
-        {
-            currentScreen = GAMEPLAY; // <--- Actually start the game here
-        }
-        if (key == KEY_BACKSPACE)
-        {
-            currentScreen = LEVEL_SELECT;
-        }
-        break;
     }
     case GAMEPLAY:
     {
@@ -511,7 +497,7 @@ case NAME_ENTRY:
             }
 currentScreen=GAMEOVER;
         }
-       else if(timer<=0.0f)
+        if(timer<=0.0f)
         {
             timer=0.0f;
             complete_target=false;
@@ -519,22 +505,18 @@ currentScreen=GAMEOVER;
 
         }
      if (key == KEY_ESCAPE)
-    currentScreen = LEVEL_SELECT;
+    currentScreen = MAIN_MENU;
     break;
     }
     case GAMEOVER:
     {
         if(key==KEY_ENTER)
         {
-            currentScreen=LEVEL_SELECT;
+            currentScreen=MAIN_MENU;
             break;
         }
     }
 }
-
-
-
-//drawing logic
         BeginDrawing();
 
         ClearBackground(RAYWHITE);
@@ -615,11 +597,11 @@ case NAME_ENTRY:
         }
         if(maxdifficultyunlocked>=DIFF_HARD)
         {
-        DrawButton("[H]HARD",screenwidth/2,350,28,25,10);
+        DrawButton("[M]HARD",screenwidth/2,350,28,25,10);
         }
         else
         {
-            DrawButton("[H]HARD-LOCKED",screenwidth/2,350,28,25,10);
+            DrawButton("[M]HARD-LOCKED",screenwidth/2,350,28,25,10);
         }
 
 
@@ -641,34 +623,19 @@ case NAME_ENTRY:
        DrawButton("[1] Level 1",screenwidth/2,220,28,25,10);
        DrawButton("[2] Level 2",screenwidth/2,300,28,25,10);
        DrawButton("[3] Level 3",screenwidth/2,380,28,25,10);
-       DrawButton("Press [ENTER] to Continue", screenwidth / 2,460,28,25,10);
+       DrawButton("press [Enter] to start level",screenwidth/2,460,28,25,10);
        DrawButton("press [Backspace] to return",screenwidth/2,540,28,25,10);
+    
+
         break;
             }
-
-            case LEVEL_READY:
-        {
-            DrawTexturePro(
-                ninjaLogo,
-                (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
-                (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
-                (Vector2){ 0, 0 }, 0.0f, WHITE
-            );
-            DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 130 });
-
-            DrawButton(TextFormat("LEVEL %d SELECTED", selectedlevel), screenwidth / 2, 200, 35, 25, 12);
-            DrawButton(TextFormat("Target: %d | Time: %.0fs", target, timer), screenwidth / 2, 280, 25, 20, 8);
-            DrawButton("Press [ENTER] to Start Game", screenwidth / 2, 360, 25, 20, 8);
-            DrawButton("[Backspace] Go Back", screenwidth / 2, 440, 18, 20, 8);
-            break;
-        }
 
         case GAMEPLAY:
          {
             DrawLine(0,bottom_line_y,screenwidth,bottom_line_y,RED);
                 DrawText(TextFormat("SCORE: %d",score),750,20,40,RED);
     DrawText(TextFormat("TIME: %.1f s",timer),400,20,40,RED);
-    DrawText(TextFormat("TARGET: %d",target),50,20,40,RED);
+    DrawText("TARGET: 100",50,20,40,RED);
 
         for(int i=0;i<MAX_WORD_ONSCREEN;i++)
         {
@@ -689,19 +656,19 @@ case NAME_ENTRY:
             {
                 if(complete_target)
                 {
-                    DrawText("LEVEL COMPLETED",screenwidth/2-200,screenheight/2-100,45,RED);
-DrawText(TextFormat("SCORE: %d",score),screenwidth/2-100,screenheight/2-20,40,RED);
- DrawText("PRESS [ENTER] TO RETURN",screenwidth/2-240,screenheight/2+60,30,RED);
+                    DrawText("LEVEL COMPLETED",screenwidth/3,screenheight/2+20,50,RED);
+DrawText(TextFormat("SCORE: %d",score),screenwidth/2-25,screenheight/2-100,50,RED);
 
                 }
                 else
                 {
-                    DrawText("GAME OVER",screenwidth/2-150,screenheight/2-100,50,RED);
-DrawText(TextFormat("SCORE: %d",score),screenwidth/2-100,screenheight/2-20,40,RED);
-DrawText("PRESS [ENTER] TO RETURN",screenwidth/2-220,screenheight/2+60,30,RED);
+                    DrawText("GAME OVER",screenwidth/2-200,screenheight/2-200,50,RED);
+DrawText(TextFormat("SCORE: %d",score),screenwidth/2-25,screenheight/2-100,50,RED);
+DrawText("PRESS [ENTER] TO RETURN",screenwidth/3-150,screenheight/2,50,RED);
 
                 }
-               
+                DrawText("PRESS [ENTER] TO RETURN",screenwidth/3-150,screenheight/2,50,RED);
+break;
             }
         }
     
