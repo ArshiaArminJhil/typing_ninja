@@ -1,6 +1,6 @@
 #include "raylib.h"
 
-typedef enum GameScreen {
+typedef enum{
 TITLE = 0,
 MAIN_MENU,
 NAME_ENTRY,      
@@ -92,7 +92,7 @@ case NAME_ENTRY:
     {
         nameLength--;
         playerName[nameLength] = '\0';
-    }
+    }    
 
     if (key == KEY_ENTER && nameLength > 0)
     {
@@ -146,8 +146,7 @@ case NAME_ENTRY:
          ninjaLogo,
         (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
          (Rectangle){ 0, 0, (float)screenWidth, (float)screenHeight },
-        (Vector2){ 0, 0 },0.0f,WHITE
-        );
+        (Vector2){ 0, 0 },0.0f,WHITE);
 
         switch (currentScreen)
         {

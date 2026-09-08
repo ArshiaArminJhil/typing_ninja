@@ -59,6 +59,7 @@ int score=0;
 int target=0;
 bool GAME_OVER=false;
 bool complete_target=false;
+bool ismuted=false;
 float spawntime=0.0f;
 float spawninterval=2.0f;
 
@@ -282,12 +283,17 @@ int nameLength=0;
     }
     }
     case MAIN_MENU:
+    {Rectangle mutebuttonrec={(float)screenwidth-150,20,120,40};
+    if(CheckCollisionPointRec(GetMousePosition(),mutebuttonrec)&&IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
     {
+        ismuted = !ismuted;
+        SetMasterVolume(ismuted?0.0f:1.0f);
+    }
     if (key == KEY_P)
     {
     nameLength = 0;
-    playerName[0] = '\0';
-    while(GetCharPressed()>0);
+   playerName[0] = '\0';
+   while(GetCharPressed()>0);
     currentScreen = NAME_ENTRY;
     }
     else if (key == KEY_R)
@@ -480,7 +486,7 @@ case NAME_ENTRY:
     {
         if (key == KEY_ENTER)
         {
-            currentScreen = GAMEPLAY; // <--- Actually start the game here
+            currentScreen = GAMEPLAY; //Actually start the game here
         }
         if (key == KEY_BACKSPACE)
         {
@@ -565,6 +571,7 @@ currentScreen=GAMEOVER;
         (Vector2){ 0, 0 },0.0f,WHITE
         );
         DrawRectangle(0, 0, screenwidth,screenheight,(Color){0,0,0,130});
+        DrawButton(ismuted ?"Unmute" : "Mute",screenwidth-90,40,20,15,8);
         DrawButton("MAIN MENU",screenwidth/2,120,28,25,10);
         DrawButton("[P] Play Game",screenwidth/2,210,28,25,10);
         DrawButton("[Practice Mode(Coming Soon)]",screenwidth/2,270,24,25,10);
