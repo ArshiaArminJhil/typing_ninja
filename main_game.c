@@ -393,7 +393,7 @@ case NAME_ENTRY:
     {
         selectedlevel=3;
     }
-    if(key==KEY_ENTER)
+    if(key==KEY_ONE||key==KEY_TWO||key==KEY_THREE)
     {
         initgameplay();
         if(selecteddiff==DIFF_EASY)
@@ -637,7 +637,7 @@ case NAME_ENTRY:
 
         case LEVEL_SELECT:
         {
-            DrawTexturePro(
+            DrawTexturePro( 
                 ninjaLogo,
         (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
          (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
@@ -648,7 +648,6 @@ case NAME_ENTRY:
        DrawButton("[1] Level 1",screenwidth/2,220,28,25,10);
        DrawButton("[2] Level 2",screenwidth/2,300,28,25,10);
        DrawButton("[3] Level 3",screenwidth/2,380,28,25,10);
-       DrawButton("Press [ENTER] to Continue", screenwidth / 2,460,28,25,10);
        DrawButton("press [Backspace] to return",screenwidth/2,540,28,25,10);
         break;
             }
