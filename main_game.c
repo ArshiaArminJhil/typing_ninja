@@ -236,6 +236,11 @@ if(IsKeyPressed(KEY_ENTER))
 
 
 
+
+
+
+
+
 //Jhil's code
 //this is a funtion for drawing rectangle behind every text
 void DrawButton(const char *text, int centerX, int y,int fontSize, int paddingX, int paddingY)
