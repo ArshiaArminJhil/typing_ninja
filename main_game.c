@@ -5,8 +5,6 @@
 #include<time.h>
 #include<stdbool.h>
 
-
-
 #define screenwidth 1000
 #define screenheight 800
 #define MAX_LINE 50
@@ -264,6 +262,12 @@ InitAudioDevice();
 SetTargetFPS(60);
 
 Texture2D ninjaLogo = LoadTexture("ninja_logo.png");
+Texture2D easy = LoadTexture("coverphoto_easy.png");
+//if(easy.id<=0)
+//{
+//TraceLog(LOG_WARNING,"EMAGE FAILED TO LOAD");
+//}
+//printf("Easy image: %d x %d\n", easy.width, easy.height);
 Music backgroundMusic = LoadMusicStream("background_music.mp3");
 PlayMusicStream(backgroundMusic);
 GameScreen currentScreen = TITLE;
@@ -642,14 +646,13 @@ case NAME_ENTRY:
 
         case LEVEL_SELECT:
         {
-            DrawTexturePro( 
+         DrawTexturePro( 
                 ninjaLogo,
         (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
-         (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
+        (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
         (Vector2){ 0, 0 },0.0f,WHITE
         );
-        DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 130 });
-
+       DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 130 });
        DrawButton("[1] Level 1",screenwidth/2,220,28,25,10);
        DrawButton("[2] Level 2",screenwidth/2,300,28,25,10);
        DrawButton("[3] Level 3",screenwidth/2,380,28,25,10);
@@ -676,6 +679,13 @@ case NAME_ENTRY:
 
         case GAMEPLAY:
          {
+            DrawTexturePro(
+                easy,
+                (Rectangle){ 0, 0, (float)easy.width, (float)easy.height },
+                (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
+                (Vector2){ 0, 0 }, 0.0f, WHITE
+            );
+             DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 0 });
             DrawLine(0,bottom_line_y,screenwidth,bottom_line_y,RED);
                 DrawText(TextFormat("SCORE: %d",score),750,20,40,RED);
     DrawText(TextFormat("TIME: %.1f s",timer),400,20,40,RED);
@@ -719,6 +729,7 @@ DrawText("PRESS [ENTER] TO RETURN",screenwidth/2-220,screenheight/2+60,30,RED);
         EndDrawing();
 
     }
+    UnloadTexture(easy);
      UnloadTexture(ninjaLogo);
     StopMusicStream(backgroundMusic); 
     UnloadMusicStream(backgroundMusic);
