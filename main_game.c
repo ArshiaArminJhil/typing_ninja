@@ -10,7 +10,7 @@
 #define MAX_LINE 50
 #define MAX_LEN 30
 #define MAX_WORD_ONSCREEN 5
-#define bottom_line_y 750
+#define bottom_line_y 582
 
 
 
@@ -97,10 +97,12 @@ return totalword;
 
 void initgameplay()
 {
-        {
+        
 score=0;
  GAME_OVER=false;
- bool complete_target=false;
+
+complete_target=false;
+ totalword=0;
 
  spawntime=0.0f;
  wordlength=0;
@@ -110,7 +112,7 @@ score=0;
         screenword[i].active=false;
     }
 
-    }
+    
 
 }
 
@@ -120,7 +122,7 @@ void spawnword(int index)
 {
     int i=rand()%totalword;
     strcpy(screenword[index].text,word[i]);
-    screenword[index].position.x=GetRandomValue(100,screenwidth-200);
+    screenword[index].position.x=GetRandomValue(200,screenwidth-200);
     screenword[index].position.y=GetRandomValue(-150,-40);
     screenword[index].speed=speed;
     screenword[index].active=true;
@@ -216,9 +218,172 @@ if(IsKeyPressed(KEY_ENTER))
 
 
 
+void levelsetting(Difficultymode selecteddiff,int selectedlevel)
+{
+    initgameplay();
+    switch(selecteddiff)
+    {
+        case DIFF_EASY:
+        {
+            speed=80.0f;
+            if(selectedlevel==1)
+            {
+                timer=60.0f;
+                target=100;
+
+            }
+            else if(selectedlevel==2)
+            {
+                timer=50.0f;
+                target=200;
+            }
+            else
+            {
+                timer=40.0f;
+                target=300;
+            }
+            //loadword("word.txt");
+            break;
+        }
+                case DIFF_MEDIUM:
+        {
+            speed=130.0f;
+            if(selectedlevel==1)
+            {
+                timer=40.0f;
+                target=150;
+
+            }
+            else if(selectedlevel==2)
+            {
+                timer=35.0f;
+                target=250;
+            }
+            else
+            {
+                timer=30.0f;
+                target=350;
+            }
+           // loadword("word.txt");
+            break;
+
+    }
+            case DIFF_HARD:
+        {
+            speed=180.0f;
+            if(selectedlevel==1)
+            {
+                timer=30.0f;
+                target=200;
+
+            }
+            else if(selectedlevel==2)
+            {
+                timer=25.0f;
+                target=300;
+            }
+            else
+            {
+                timer=20.0f;
+                target=450;
+            }
+           // loadword("word.txt");
+            break;
+
+}
+
+    }
+    loadword("word.txt");
+}
 
 
 
+
+void DrawNinjaHoldingScroll(const char *wordText, int centerX, int y, int fontSize, const char *currentInput)
+{
+    int inputLen = strlen(currentInput);
+    int wordLen = strlen(wordText);
+    
+
+    int textWidth = MeasureText(wordText, fontSize);
+    int scrollWidth = textWidth + 30;
+    int scrollHeight = fontSize + 16;
+    
+    
+    int ninjaSize = 32;
+    int spacing = 6;
+    int totalWidth = ninjaSize + spacing + scrollWidth;
+    
+    int startX = centerX - totalWidth / 2;
+    int ninjaX = startX;
+    int scrollX = startX + ninjaSize + spacing;
+    int textY = y + 8;
+
+    //  DRAW THE TINY NINJA HELPER
+    int headRadius = 15;
+    int headCenterX = ninjaX + headRadius + 3;
+    int headCenterY = y + (scrollHeight / 2) - 2;
+    
+    // A. Draw black outfit head/mask circle
+    DrawCircle(headCenterX, headCenterY, headRadius, BLACK);
+    
+    // B. Draw small skin-toned eyes cutout slot rectangle
+    Color ninjaSkin = (Color){ 255, 220, 180, 255 };
+    DrawRectangle(headCenterX - 9, headCenterY - 4, 18, 8, ninjaSkin);
+    
+    // C. Draw two tiny glaring black ninja pupils
+    DrawCircle(headCenterX - 4, headCenterY - 1, 2, BLACK);
+    DrawCircle(headCenterX + 4, headCenterY - 1, 2, BLACK);
+    
+    // D. Draw cute little hands overlapping the left edge of the scroll plate
+    DrawCircle(scrollX, y +12, 6, BLACK);
+    DrawCircle(scrollX, y + scrollHeight - 12, 6, BLACK);
+
+    // DRAW BACKGROUND PAPYRUS CANVAS SHEET 
+    Color parchmentColor = (Color){ 242, 222, 179, 255 }; 
+    DrawRectangle(scrollX, y, scrollWidth, scrollHeight, parchmentColor);
+    DrawRectangleLines(scrollX, y, scrollWidth, scrollHeight, BLACK);
+
+    // DRAW ROLLED WOODEN SCROLL EDGES 
+    int handleWidth = 6;
+    int handleHeight = scrollHeight + 8;
+    Color scrollWoodColor = (Color){ 139, 69, 19, 255 };
+    
+    Rectangle rightHandle = { scrollX + scrollWidth, y - 4, handleWidth, handleHeight };
+    DrawRectangleRounded(rightHandle, 0.4f, 4, scrollWoodColor);
+    DrawRectangleRoundedLines(rightHandle, 0.4f, 4, BLACK);
+
+    // DRAW TYPING HIGHLIGHT TEXT ON TOP 
+    int textStartX = scrollX + 15;
+
+    bool isMatchingPartially = false;
+    if (inputLen > 0 && inputLen <= wordLen) 
+    {
+        if (strncmp(wordText, currentInput, inputLen) == 0) 
+        {
+            isMatchingPartially = true;
+        }
+    }
+
+    if (isMatchingPartially) 
+    {
+        char matchedPart[MAX_LEN] = { 0 };
+        strncpy(matchedPart, wordText, inputLen);
+        matchedPart[inputLen]='\0';
+        
+        const char *remainingPart = wordText + inputLen;
+
+        // Correctly typed letters glow in Maroon Ninja Red
+        DrawText(matchedPart, textStartX, textY, fontSize, MAROON);
+
+        int offset = MeasureText(matchedPart, fontSize);
+        DrawText(remainingPart, textStartX + offset, textY, fontSize, BLACK);
+    }
+    else 
+    {
+        DrawText(wordText, textStartX, textY, fontSize, BLACK);
+    }
+}
 
 
 
@@ -404,85 +569,14 @@ case NAME_ENTRY:
     }
     if(key==KEY_ONE||key==KEY_TWO||key==KEY_THREE)
     {
-        initgameplay();
-        if(selecteddiff==DIFF_EASY)
-        {
-            speed=80.0f;
-            if(selectedlevel==1)
-            {
-                timer=60.0f;
-                target=100;
-                loadword("word.txt");
-                
-            }
-            else if(selectedlevel==2)
-            {
-                timer=50.0f;
-                target=120;
-                loadword("word.txt");
-            }
-            else
-            {
-                timer=40.0f;
-                target=150;
-                loadword("word.txt");
+        levelsetting(selecteddiff,selectedlevel);
    
-            }
-        }
-        else if(selecteddiff==DIFF_MEDIUM)
-        {
-                        speed=120.0f;
-            if(selectedlevel==1)
-            {
-                timer=40.0f;
-                target=100;
-                loadword("word.txt");
-                
-            }
-            else if(selectedlevel==2)
-            {
-                timer=35.0f;
-                target=200;
-                loadword("word.txt");
-            }
-            else
-            {
-                timer=30.0f;
-                target=300;
-                loadword("word.txt");
-   
-            }
-
-        }
-        else
-        {
-                        speed=160.0f;
-            if(selectedlevel==1)
-            {
-                timer=30.0f;
-                target=100;
-                loadword("word.txt");
-                
-            }
-            else if(selectedlevel==2)
-            {
-                timer=25.0f;
-                target=200;
-                loadword("word.txt");
-            }
-            else
-            {
-                timer=20.0f;
-                target=300;
-                loadword("word.txt");
-   
-            }
-
-        }
+            
             currentScreen = LEVEL_READY;
-
+            
 
     }
+    
 
 
     if (key == KEY_BACKSPACE)
@@ -652,6 +746,7 @@ case NAME_ENTRY:
         (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
         (Vector2){ 0, 0 },0.0f,WHITE
         );
+    
        DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 130 });
        DrawButton("[1] Level 1",screenwidth/2,220,28,25,10);
        DrawButton("[2] Level 2",screenwidth/2,300,28,25,10);
@@ -662,12 +757,15 @@ case NAME_ENTRY:
 
             case LEVEL_READY:
         {
-            DrawTexturePro(
+        DrawTexturePro(
                 ninjaLogo,
+                
                 (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
                 (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
                 (Vector2){ 0, 0 }, 0.0f, WHITE
+                
             );
+        
             DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 130 });
 
             DrawButton(TextFormat("LEVEL %d SELECTED", selectedlevel), screenwidth / 2, 200, 35, 25, 12);
@@ -686,16 +784,18 @@ case NAME_ENTRY:
                 (Vector2){ 0, 0 }, 0.0f, WHITE
             );
              DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 0 });
-            DrawLine(0,bottom_line_y,screenwidth,bottom_line_y,RED);
-                DrawText(TextFormat("SCORE: %d",score),750,20,40,RED);
-    DrawText(TextFormat("TIME: %.1f s",timer),400,20,40,RED);
-    DrawText(TextFormat("TARGET: %d",target),50,20,40,RED);
+           // DrawLine(0,bottom_line_y,screenwidth,bottom_line_y,RED);
+                DrawButton(TextFormat("SCORE: %d",score),80,20,20,10,6);
+    DrawButton(TextFormat("TIME: %.1f s",timer),80,60,20,10,6);
+    DrawButton(TextFormat("TARGET: %d",target),80,100,20,10,6);
 
         for(int i=0;i<MAX_WORD_ONSCREEN;i++)
         {
             if(screenword[i].active)
             {
-             DrawText(screenword[i].text,screenword[i].position.x,screenword[i].position.y,40,RED);
+             //DrawButton(screenword[i].text,screenword[i].position.x,screenword[i].position.y,20,15,9);
+
+             DrawNinjaHoldingScroll(screenword[i].text,screenword[i].position.x,screenword[i].position.y,22,inputword);
 
 
             }
