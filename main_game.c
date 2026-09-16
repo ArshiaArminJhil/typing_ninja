@@ -171,11 +171,13 @@ if(spawntime>=spawninterval)
     for(int i=0;i<MAX_WORD_ONSCREEN;i++)
     {
         if(!screenword[i].active)
+        {
         continue;
+        }
         if(screenword[i].issliced)
         {
 
-            if(screenword[i].slashtimer>0.0f)
+            if(screenword[i].slashtimer>=0.0f)
             {
                 screenword[i].slashtimer-=dt;
                 screenword[i].leftvelocity.y+=600.0f*dt;
@@ -196,7 +198,7 @@ if(spawntime>=spawninterval)
             }
             else
             {
-                                     screenword[i].active=false;
+                 screenword[i].active=false;
                      screenword[i].issliced=false;
 
             }
@@ -507,7 +509,8 @@ Texture2D easy = LoadTexture("coverphoto_easy.png");
 //TraceLog(LOG_WARNING,"EMAGE FAILED TO LOAD");
 //}
 //printf("Easy image: %d x %d\n", easy.width, easy.height);
-//slicesound=LoadSound();
+slicesound=LoadSound("daviddumaisaudio-sword-slash-with-metallic-impact-185435.mp3");
+SetSoundVolume(slicesound,0.8f);
 Music backgroundMusic = LoadMusicStream("background_music.mp3");
 PlayMusicStream(backgroundMusic);
 GameScreen currentScreen = TITLE;
@@ -536,7 +539,15 @@ int nameLength=0;
     if(CheckCollisionPointRec(GetMousePosition(),mutebuttonrec)&&IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
     {
         ismuted = !ismuted;
-        SetMasterVolume(ismuted?0.0f:1.0f);
+        if(ismuted)
+        {
+            SetMusicVolume(backgroundMusic,0.0f);
+        }
+        else
+        {
+            SetMusicVolume(backgroundMusic,1.0f);
+        }
+        //SetMasterVolume(ismuted?0.0f:1.0f);
     }
     if (key == KEY_P)
     {
@@ -931,6 +942,7 @@ DrawText("PRESS [ENTER] TO RETURN",screenwidth/2-220,screenheight/2+60,30,RED);
      UnloadTexture(ninjaLogo);
     StopMusicStream(backgroundMusic); 
     UnloadMusicStream(backgroundMusic);
+    UnloadSound(slicesound);
     CloseAudioDevice();
 
     CloseWindow();   
