@@ -41,7 +41,19 @@ char text[MAX_LEN];
 Vector2 position;
 float speed;
 bool active;
+bool issliced;
+char lefthalf[MAX_LEN];
+char righthalf[MAX_LEN];
+Vector2 leftvelocity;
+Vector2 rightvelocity;
+Vector2 leftposoffset;
+Vector2 rightposoffset;
+float slashtimer;
+Vector2 slashstart;
+Vector2 slashend;
 }Fallingword;
+
+Sound slicesound;
 
 
 
@@ -110,6 +122,12 @@ complete_target=false;
     for(int i=0;i<MAX_WORD_ONSCREEN;i++)
     {
         screenword[i].active=false;
+        screenword[i].issliced=false;
+        screenword[i].leftposoffset=(Vector2){0.0f,0.0f};
+        screenword[i].rightposoffset=(Vector2){0.0f,0.0f};
+        screenword[i].slashtimer=0.0f;
+        screenword[i].lefthalf[0]='\0';
+        screenword[i].righthalf[0]='\0';
     }
 
     
@@ -126,6 +144,8 @@ void spawnword(int index)
     screenword[index].position.y=GetRandomValue(-150,-40);
     screenword[index].speed=speed;
     screenword[index].active=true;
+    screenword[index].lefthalf[0]='\0';
+    screenword[index].righthalf[0]='\0';
 }
 
 
@@ -136,6 +156,7 @@ void updatefallingword(float dt)
    timer-=dt;
  spawntime+=dt;
 if(spawntime>=spawninterval)
+
 {
     for(int i=0;i<MAX_WORD_ONSCREEN;i++)
     {
@@ -149,19 +170,53 @@ if(spawntime>=spawninterval)
 }
     for(int i=0;i<MAX_WORD_ONSCREEN;i++)
     {
-        if(screenword[i].active)
+        if(!screenword[i].active)
+        continue;
+        if(screenword[i].issliced)
         {
-            screenword[i].position.y+=screenword[i].speed*GetFrameTime();
+
+            if(screenword[i].slashtimer>0.0f)
+            {
+                screenword[i].slashtimer-=dt;
+                screenword[i].leftvelocity.y+=600.0f*dt;
+                screenword[i].rightvelocity.y+=600.0f*dt;
+                screenword[i].leftposoffset.x+=screenword[i].leftvelocity.x*dt;
+                screenword[i].leftposoffset.y+=screenword[i].leftvelocity.y*dt;
+                screenword[i].rightposoffset.x+=screenword[i].rightvelocity.x*dt;
+                screenword[i].rightposoffset.y+=screenword[i].rightvelocity.y*dt;
+
+                float currenty=screenword[i].position.y+screenword[i].leftposoffset.y;
+                float currentx=screenword[i].position.x+screenword[i].leftposoffset.x;
+                if(currenty>=bottom_line_y||currenty<=-200||currentx<=-200||currentx>screenwidth+200)
+                {
+                     screenword[i].active=false;
+                     screenword[i].issliced=false;
+
+                }
+            }
+            else
+            {
+                                     screenword[i].active=false;
+                     screenword[i].issliced=false;
+
+            }
+        }
+
+            
+            else
+            {
+            screenword[i].position.y+=screenword[i].speed*dt;
             if(screenword[i].position.y>=bottom_line_y)
             {
                 screenword[i].active=false;
                 score-=5;
             }
         }
+        }
     }
 
 
-}
+
 
 void handleplayertyping()
 {
@@ -190,12 +245,31 @@ if(IsKeyPressed(KEY_ENTER))
     bool matchfound=false;
     for(int i=0;i<MAX_WORD_ONSCREEN;i++)
     {
-        if(screenword[i].active)
+        if(screenword[i].active&&!screenword[i].issliced)
         {
                 if(strcmp(screenword[i].text,inputword)==0)
                 {
-                    screenword[i].active=false;
+                   // screenword[i].active=false;
+                   screenword[i].issliced=true;
                     score+=10;
+                    PlaySound(slicesound);
+                    int wordwidth=MeasureText(screenword[i].text,22);
+                    int wordheight=22;
+                    screenword[i].slashstart=(Vector2){screenword[i].position.x+wordwidth+10,screenword[i].position.y-5};
+                    screenword[i].slashend=(Vector2){screenword[i].position.x-10,screenword[i].position.y+wordheight+5};
+                    screenword[i].slashtimer=0.15f;
+                    int len=(int)strlen(screenword[i].text);
+                    int mid=len/2;
+                    strncpy(screenword[i].lefthalf,screenword[i].text,mid);
+                    screenword[i].lefthalf[mid]='\0';
+                    strcpy(screenword[i].righthalf,screenword[i].text+mid);
+                    screenword[i].leftvelocity=(Vector2){-250.0f,-200.0f};
+                      screenword[i].rightvelocity=(Vector2){250.0f,-200.0f};
+                     screenword[i].leftposoffset=(Vector2){0.0f,0.0f};
+                    screenword[i].rightposoffset=(Vector2){0.0f,0.0f};
+
+
+
                     matchfound=true;
                     break;
                 }
@@ -433,6 +507,7 @@ Texture2D easy = LoadTexture("coverphoto_easy.png");
 //TraceLog(LOG_WARNING,"EMAGE FAILED TO LOAD");
 //}
 //printf("Easy image: %d x %d\n", easy.width, easy.height);
+//slicesound=LoadSound();
 Music backgroundMusic = LoadMusicStream("background_music.mp3");
 PlayMusicStream(backgroundMusic);
 GameScreen currentScreen = TITLE;
@@ -793,10 +868,33 @@ case NAME_ENTRY:
         {
             if(screenword[i].active)
             {
+                if(screenword[i].issliced)
+                {
+
+                    int scrolloffsetx=15;
+                    int scrolloffsety=8;
+                    int leftx=(int)(screenword[i].position.x+scrolloffsetx+screenword[i].leftposoffset.x);
+                      int lefty=(int)(screenword[i].position.y+scrolloffsety+screenword[i].leftposoffset.y);
+                      DrawText(screenword[i].lefthalf,leftx,lefty,22,RED);
+                      int leftwidth=MeasureText(screenword[i].lefthalf,22);
+                      int rightx=(screenword[i].position.x+scrolloffsetx+screenword[i].rightposoffset.x);
+                    int righty=(screenword[i].position.y+scrolloffsety+screenword[i].rightposoffset.y);
+                      DrawText(screenword[i].righthalf,rightx,righty,22,RED);
+
+if (screenword[i].slashtimer>0.0f)
+{
+    DrawLineEx(screenword[i].slashstart,screenword[i].slashend,6.0f,WHITE);
+        DrawLineEx(screenword[i].slashstart,screenword[i].slashend,2.0f,SKYBLUE);
+
+}
+
+  
+                }
+                else{
              //DrawButton(screenword[i].text,screenword[i].position.x,screenword[i].position.y,20,15,9);
 
              DrawNinjaHoldingScroll(screenword[i].text,screenword[i].position.x,screenword[i].position.y,22,inputword);
-
+            }
 
             }
         }
