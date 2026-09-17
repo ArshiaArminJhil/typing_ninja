@@ -23,7 +23,8 @@ MAIN_MENU,
 LEVEL_SELECT,
 LEVEL_READY,
 GAMEPLAY,
-GAMEOVER
+GAMEOVER,
+RECORDS
 } GameScreen;
 
 
@@ -42,15 +43,39 @@ Vector2 position;
 float speed;
 bool active;
 }Fallingword;
+//new
+typedef struct {
+    char name[30];
+    int difficultyUnlocked; 
+    int highestLevel;       
+} PlayerRecord;
 
+const char* GetNinjaRank(int diff, int level) {
+    // Jonin: Reached Hard difficulty and completed level 3
+    if (diff == DIFF_HARD && level >= 3) {
+        return "Jonin";
+    }
+    // Chunin: Reached Hard difficulty (meaning Medium level 3 was fully completed)
+    if (diff == DIFF_HARD) {
+        return "Chunin";
+    }
+    // Genin: Reached Medium difficulty (meaning Easy level 3 was fully completed)
+    if (diff == DIFF_MEDIUM) {
+        return "Genin";
+    }
+    
+    return "Not Yet";
+}
 
+// Load player progress for the specific name entered, or reset if new
 
 GameScreen currentScreen=TITLE;
 Difficultymode selecteddiff=DIFF_EASY;
 int selectedlevel=1;
 int maxdifficultyunlocked=DIFF_EASY;
 
-
+char playerName[30]="" ;
+int nameLength=0;
 float speed=0.0f;
 float timer=0.0f;
 int score=0;
@@ -60,6 +85,7 @@ bool complete_target=false;
 bool ismuted=false;
 float spawntime=0.0f;
 float spawninterval=2.0f;
+int maxlevelunlocked[3] = {1, 1, 1};
 
 
 
@@ -69,7 +95,82 @@ char word[MAX_LINE][MAX_LEN];
 char inputword[100];
 int wordlength=0;
 
+//new
+// 1. Save the maximum unlocked level instead of just the last played level
+void SaveRecord() {
+    PlayerRecord records[50];
+    int totalRecords = 0;
+    bool found = false;
 
+    FILE *f = fopen("records.txt", "r");
+    if (f != NULL) {
+        char filePlayer[30];
+        int fileDiff, fileLevel;
+        while (totalRecords < 50 && fscanf(f, "%29s %d %d", filePlayer, &fileDiff, &fileLevel) == 3) {
+            if (strcmp(filePlayer, playerName) == 0) {
+                strcpy(records[totalRecords].name, playerName);
+                records[totalRecords].difficultyUnlocked = (maxdifficultyunlocked > fileDiff) ? maxdifficultyunlocked : fileDiff;
+                // Save the highest unlocked level between file and current progress
+              int currentMaxLvl = maxlevelunlocked[fileDiff]; 
+        records[totalRecords].highestLevel = (currentMaxLvl > fileLevel) ? currentMaxLvl : fileLevel;
+                found = true;
+            } else {
+                strcpy(records[totalRecords].name, filePlayer);
+                records[totalRecords].difficultyUnlocked = fileDiff;
+                records[totalRecords].highestLevel = fileLevel;
+            }
+            totalRecords++;
+        }
+        fclose(f);
+    }
+
+    if (!found && strlen(playerName) > 0) {
+        strcpy(records[totalRecords].name, playerName);
+        records[totalRecords].difficultyUnlocked = maxdifficultyunlocked;
+        records[totalRecords].highestLevel = maxlevelunlocked[maxdifficultyunlocked];
+        totalRecords++;
+    }
+
+    f = fopen("records.txt", "w");
+    if (f != NULL) {
+        for (int i = 0; i < totalRecords; i++) {
+            fprintf(f, "%s %d %d\n", records[i].name, records[i].difficultyUnlocked, records[i].highestLevel);
+        }
+        fclose(f);
+    }
+}
+
+// 2. Properly restore the unlocked level bounds when reloading a player
+void LoadPlayerProgress() {
+    FILE *f = fopen("records.txt", "r");
+    bool found = false;
+    
+    if (f != NULL) {
+        char filePlayer[30];
+        int fileDiff, fileLevel;
+        
+        while (fscanf(f, "%29s %d %d", filePlayer, &fileDiff, &fileLevel) == 3) {
+            if (strcmp(filePlayer, playerName) == 0) {
+                maxdifficultyunlocked = fileDiff;
+                selecteddiff = fileDiff;
+                maxlevelunlocked[fileDiff] = fileLevel; // Restores unlocked levels (e.g., level 3 unlocked)
+                selectedlevel = 1; // Default back to level 1 selection, but keep higher levels unlocked
+                found = true;
+                break;
+            }
+        }
+        fclose(f);
+    }
+    
+    if (!found) {
+        maxdifficultyunlocked = DIFF_EASY;
+        selecteddiff = DIFF_EASY;
+        selectedlevel = 1;
+        maxlevelunlocked[0] = 1;
+        maxlevelunlocked[1] = 1;
+        maxlevelunlocked[2] = 1;
+    }
+}
 
 int loadword(char* filename)
 {
@@ -216,85 +317,39 @@ if(IsKeyPressed(KEY_ENTER))
 }
 
 
-
-
-void levelsetting(Difficultymode selecteddiff,int selectedlevel)
+void levelsetting(Difficultymode diff, int level)
 {
     initgameplay();
-    switch(selecteddiff)
+    switch(diff)
     {
         case DIFF_EASY:
         {
-            speed=80.0f;
-            if(selectedlevel==1)
-            {
-                timer=60.0f;
-                target=100;
-
-            }
-            else if(selectedlevel==2)
-            {
-                timer=50.0f;
-                target=200;
-            }
-            else
-            {
-                timer=40.0f;
-                target=300;
-            }
-            //loadword("word.txt");
+            speed = 80.0f;
+            if(level == 1)      { timer = 60.0f; target = 100; }
+            else if(level == 2) { timer = 50.0f; target = 200; }
+            else                { timer = 40.0f; target = 300; }
             break;
         }
-                case DIFF_MEDIUM:
+        case DIFF_MEDIUM:
         {
-            speed=130.0f;
-            if(selectedlevel==1)
-            {
-                timer=40.0f;
-                target=150;
-
-            }
-            else if(selectedlevel==2)
-            {
-                timer=35.0f;
-                target=250;
-            }
-            else
-            {
-                timer=30.0f;
-                target=350;
-            }
-           // loadword("word.txt");
+            speed = 130.0f;
+            if(level == 1)      { timer = 40.0f; target = 150; }
+            else if(level == 2) { timer = 35.0f; target = 250; }
+            else                { timer = 30.0f; target = 350; }
             break;
-
-    }
-            case DIFF_HARD:
+        }
+        case DIFF_HARD:
         {
-            speed=180.0f;
-            if(selectedlevel==1)
-            {
-                timer=30.0f;
-                target=200;
-
-            }
-            else if(selectedlevel==2)
-            {
-                timer=25.0f;
-                target=300;
-            }
-            else
-            {
-                timer=20.0f;
-                target=450;
-            }
-           // loadword("word.txt");
+            speed = 180.0f;
+            if(level == 1)      { timer = 30.0f; target = 200; }
+            else if(level == 2) { timer = 25.0f; target = 300; }
+            else                { timer = 20.0f; target = 450; }
             break;
-
-}
-
+        }
     }
     loadword("word.txt");
 }
+
 
 
 
@@ -428,6 +483,7 @@ SetTargetFPS(60);
 
 Texture2D ninjaLogo = LoadTexture("ninja_logo.png");
 Texture2D easy = LoadTexture("coverphoto_easy.png");
+Texture2D records =LoadTexture("coverphoto_hard.png");
 //if(easy.id<=0)
 //{
 //TraceLog(LOG_WARNING,"EMAGE FAILED TO LOAD");
@@ -436,8 +492,6 @@ Texture2D easy = LoadTexture("coverphoto_easy.png");
 Music backgroundMusic = LoadMusicStream("background_music.mp3");
 PlayMusicStream(backgroundMusic);
 GameScreen currentScreen = TITLE;
-char playerName[30]="" ;
-int nameLength=0;
 
     while (!WindowShouldClose())
     {
@@ -453,8 +507,8 @@ int nameLength=0;
     if (key == KEY_ENTER)
     {
     currentScreen = MAIN_MENU;
-     break;
     }
+    break;
     }
     case MAIN_MENU:
     {Rectangle mutebuttonrec={(float)screenwidth-150,20,120,40};
@@ -470,13 +524,14 @@ int nameLength=0;
    while(GetCharPressed()>0);
     currentScreen = NAME_ENTRY;
     }
+    //new
     else if (key == KEY_R)
     {
-     // we will do it later
-     }
-    else if (key == KEY_X)
+        currentScreen = RECORDS;
+    }
+    else if (key == KEY_H)
     {
-    //later;
+    currentScreen = TITLE;
     }
                 
     if (key == KEY_BACKSPACE)
@@ -485,43 +540,46 @@ int nameLength=0;
     break;}
     }
     
+    //new
+
 case NAME_ENTRY:
-{
-    int charPressed = GetCharPressed();
-
-    while (charPressed > 0)
     {
-        if (charPressed >= 32 &&
-            charPressed <= 125 &&
-            nameLength < 29)
-        {
-            playerName[nameLength] = (char)charPressed;
-            nameLength++;
+        int charPressed = GetCharPressed();
 
+        while (charPressed > 0)
+        {
+            if (charPressed >= 32 &&
+                charPressed <= 125 &&
+                nameLength < 29)
+            {
+                playerName[nameLength] = (char)charPressed;
+                nameLength++;
+
+                playerName[nameLength] = '\0';
+            }
+
+            charPressed = GetCharPressed();
+        }
+
+        if (key == KEY_BACKSPACE && nameLength > 0)
+        {
+            nameLength--;
             playerName[nameLength] = '\0';
         }
 
-        charPressed = GetCharPressed();
-    }
+        if (key == KEY_ENTER && nameLength > 0)
+        {
+            LoadPlayerProgress(); // <-- Loads past save or resets for a new player!
+            currentScreen = DIFFICULTY;
+        }
 
-    if (key == KEY_BACKSPACE && nameLength > 0)
-    {
-        nameLength--;
-        playerName[nameLength] = '\0';
-    }
+        if (key == KEY_ESCAPE)
+        {
+            currentScreen = MAIN_MENU;
+        }
 
-    if (key == KEY_ENTER && nameLength > 0)
-    {
-        currentScreen = DIFFICULTY;
+        break;
     }
-
-    if (key == KEY_ESCAPE)
-    {
-        currentScreen = MAIN_MENU;
-    }
-
-    break;
-}
 
     case DIFFICULTY:
     {
@@ -554,96 +612,97 @@ case NAME_ENTRY:
     break;
     }
     case LEVEL_SELECT:
+{
+    if (key == KEY_ONE)
     {
-    if(key==KEY_ONE)
-    {
-        selectedlevel=1;
+        selectedlevel = 1;
+        levelsetting(selecteddiff, selectedlevel);
+        currentScreen = LEVEL_READY;
     }
-    else if(key==KEY_TWO)
+    else if (key == KEY_TWO && maxlevelunlocked[selecteddiff] >= 2)
     {
-        selectedlevel=2;
+        selectedlevel = 2;
+        levelsetting(selecteddiff, selectedlevel);
+        currentScreen = LEVEL_READY;
     }
-    else if(key==KEY_THREE)
+    else if (key == KEY_THREE && maxlevelunlocked[selecteddiff] >= 3)
     {
-        selectedlevel=3;
+        selectedlevel = 3;
+        levelsetting(selecteddiff, selectedlevel);
+        currentScreen = LEVEL_READY;
     }
-    if(key==KEY_ONE||key==KEY_TWO||key==KEY_THREE)
-    {
-        levelsetting(selecteddiff,selectedlevel);
-   
-            
-            currentScreen = LEVEL_READY;
-            
-
-    }
-    
-
 
     if (key == KEY_BACKSPACE)
     {
-    currentScreen = DIFFICULTY;
+        currentScreen = DIFFICULTY;
     }
     break;
-    }
-    case LEVEL_READY:
+}
+case LEVEL_READY:
+{
+    if(key==KEY_ENTER)
     {
-        if (key == KEY_ENTER)
-        {
-            currentScreen = GAMEPLAY; //Actually start the game here
+        currentScreen=GAMEPLAY;
+    }
+    else if(key==KEY_BACKSPACE)
+{
+    currentScreen=LEVEL_SELECT;
+}
+break;
+}
+    
+   case GAMEPLAY:
+{
+    updatefallingword(deltatime);
+    handleplayertyping();
+    
+    
+    if(score >= target)
+    {
+        complete_target = true;
+        
+    
+        int nextLevel = selectedlevel + 1;
+        if (nextLevel > 3) nextLevel = 3;
+        
+        if (nextLevel > maxlevelunlocked[selecteddiff]) {
+            maxlevelunlocked[selecteddiff] = nextLevel;
         }
-        if (key == KEY_BACKSPACE)
+        
+        // Progression rules: Advance difficulty tier only after completing Level 3
+        if(selecteddiff == DIFF_EASY && selectedlevel == 3)
+        {
+            if(maxdifficultyunlocked < DIFF_MEDIUM)
+            {
+                maxdifficultyunlocked = DIFF_MEDIUM;
+            }
+        }
+        else if(selecteddiff == DIFF_MEDIUM && selectedlevel == 3)
+        {
+            if(maxdifficultyunlocked < DIFF_HARD)
+            {
+                maxdifficultyunlocked = DIFF_HARD;
+            }
+        }
+        
+        SaveRecord();
+        currentScreen = GAMEOVER;
+        break;
+    }
+    break;
+}
+
+case GAMEOVER:
+    {
+        if (key == KEY_ENTER || key == KEY_ESCAPE)
         {
             currentScreen = LEVEL_SELECT;
         }
         break;
     }
-    case GAMEPLAY:
-    {
-        updatefallingword(deltatime);
-        handleplayertyping();
-        if(score>=target)
-        {
-            complete_target=true;
-            if(selecteddiff==DIFF_EASY&&selectedlevel==3)
-            {
-                if(maxdifficultyunlocked<DIFF_MEDIUM)
-                {
-                    maxdifficultyunlocked=DIFF_MEDIUM;
-                }
-            }
-                        if(selecteddiff==DIFF_MEDIUM&&selectedlevel==3)
-            {
-                if(maxdifficultyunlocked<DIFF_HARD)
-                {
-                    maxdifficultyunlocked=DIFF_HARD;
-                }
-            }
-currentScreen=GAMEOVER;
-        }
-       else if(timer<=0.0f)
-        {
-            timer=0.0f;
-            complete_target=false;
-            currentScreen=GAMEOVER;
 
-        }
-     if (key == KEY_ESCAPE)
-    currentScreen = LEVEL_SELECT;
-    break;
     }
-    case GAMEOVER:
-    {
-        if(key==KEY_ENTER)
-        {
-            currentScreen=LEVEL_SELECT;
-            break;
-        }
-    }
-}
 
-
-
-//drawing logic
         BeginDrawing();
 
         ClearBackground(RAYWHITE);
@@ -669,18 +728,20 @@ currentScreen=GAMEOVER;
         {
             DrawTexturePro(
                 ninjaLogo,
-        (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
-         (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
-        (Vector2){ 0, 0 },0.0f,WHITE
-        );
-        DrawRectangle(0, 0, screenwidth,screenheight,(Color){0,0,0,130});
-        DrawButton(ismuted ?"Unmute" : "Mute",screenwidth-90,40,20,15,8);
-        DrawButton("MAIN MENU",screenwidth/2,120,28,25,10);
-        DrawButton("[P] Play Game",screenwidth/2,210,28,25,10);
-        DrawButton("[Practice Mode(Coming Soon)]",screenwidth/2,270,24,25,10);
-        DrawButton("[X] Exit",screenwidth/2,340,18,20,8);
-        DrawButton("BACKSPACE : Go Back",screenwidth/2,420,18,20,8);
-break;
+                (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
+                (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
+                (Vector2){ 0, 0 }, 0.0f, WHITE
+            );
+            DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 130 });
+            DrawButton(ismuted ? "Unmute" : "Mute", screenwidth - 90, 40, 20, 15, 8);
+            DrawButton("MAIN MENU", screenwidth / 2, 120, 28, 25, 10);
+            DrawButton("[P] Play Game", screenwidth / 2, 210, 28, 25, 10);
+        
+            DrawButton("[R] View Records", screenwidth / 2, 270, 24, 25, 10);
+            
+            DrawButton("[X] Exit", screenwidth / 2, 340, 18, 20, 8);
+            DrawButton("BACKSPACE : Go Back", screenwidth / 2, 420, 18, 20, 8);
+            break;
         }
 
 case NAME_ENTRY:
@@ -739,21 +800,30 @@ case NAME_ENTRY:
             }
 
         case LEVEL_SELECT:
-        {
-         DrawTexturePro( 
+        
+          {
+             DrawTexturePro( 
                 ninjaLogo,
-        (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
-        (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
-        (Vector2){ 0, 0 },0.0f,WHITE
-        );
-    
-       DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 130 });
-       DrawButton("[1] Level 1",screenwidth/2,220,28,25,10);
-       DrawButton("[2] Level 2",screenwidth/2,300,28,25,10);
-       DrawButton("[3] Level 3",screenwidth/2,380,28,25,10);
-       DrawButton("press [Backspace] to return",screenwidth/2,540,28,25,10);
-        break;
+                (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
+                (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
+                (Vector2){ 0, 0 }, 0.0f, WHITE);
+            DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 130 });
+            DrawButton("[1] Level 1", screenwidth / 2, 220, 28, 25, 10);
+            if (maxlevelunlocked[selecteddiff] >= 2) {
+                DrawButton("[2] Level 2", screenwidth / 2, 300, 28, 25, 10);
+            } else {
+                DrawButton("[2] Level 2 - LOCKED", screenwidth / 2, 300, 28, 25, 10);
             }
+
+            if (maxlevelunlocked[selecteddiff] >= 3) {
+                DrawButton("[3] Level 3", screenwidth / 2, 380, 28, 25, 10);
+            } else {
+                DrawButton("[3] Level 3 - LOCKED", screenwidth / 2, 380, 28, 25, 10);
+            }
+
+            DrawButton("press [Backspace] to return", screenwidth / 2, 540, 28, 25, 10);
+            break; 
+        }
 
             case LEVEL_READY:
         {
@@ -812,19 +882,99 @@ case NAME_ENTRY:
                 {
                     DrawText("LEVEL COMPLETED",screenwidth/2-200,screenheight/2-100,45,RED);
 DrawText(TextFormat("SCORE: %d",score),screenwidth/2-100,screenheight/2-20,40,RED);
- DrawText("PRESS [ENTER] TO RETURN",screenwidth/2-240,screenheight/2+60,30,RED);
+ DrawText("PRESS [ESCAPE] TO RETURN",screenwidth/2-240,screenheight/2+60,30,RED);
 
                 }
                 else
                 {
                     DrawText("GAME OVER",screenwidth/2-150,screenheight/2-100,50,RED);
 DrawText(TextFormat("SCORE: %d",score),screenwidth/2-100,screenheight/2-20,40,RED);
-DrawText("PRESS [ENTER] TO RETURN",screenwidth/2-220,screenheight/2+60,30,RED);
+DrawText("PRESS [ESCAPE] TO RETURN",screenwidth/2-220,screenheight/2+60,30,RED);
 
                 }
-               
+             break;  
             }
+
+            //new
+           case RECORDS:
+        {
+            DrawTexturePro(
+                records,
+                (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
+                (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
+                (Vector2){ 0, 0 }, 0.0f, WHITE
+            );
+            DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 150 });
+
+            // Title & Table Headers matching your sketch layout
+            DrawButton("NINJA LEADERBOARD", screenwidth / 2, 70, 30, 25, 10);
+            
+            DrawText("NAME", 130, 140, 18, LIGHTGRAY);
+            DrawText("RANK", 310, 140, 18, LIGHTGRAY);
+            DrawText("DIFFICULTY", 500, 140, 18, LIGHTGRAY);
+            DrawText("LEVEL", 720, 140, 18, LIGHTGRAY);
+            DrawLine(110, 170, 890, 170, LIGHTGRAY);
+
+            PlayerRecord tableRecords[50];
+            int totalRecords = 0;
+
+            // Read records from file
+            FILE *f = fopen("records.txt", "r");
+            if (f != NULL) {
+                while (totalRecords < 50 && fscanf(f, "%29s %d %d", tableRecords[totalRecords].name, &tableRecords[totalRecords].difficultyUnlocked, &tableRecords[totalRecords].highestLevel) == 3) {
+                    totalRecords++;
+                }
+                fclose(f);
+            }
+
+            // Sort records: Highest progress (Difficulty * 3 + Level) comes first
+            for (int i = 0; i < totalRecords - 1; i++) {
+                for (int j = 0; j < totalRecords - i - 1; j++) {
+                    int scoreA = (tableRecords[j].difficultyUnlocked * 3) + tableRecords[j].highestLevel;
+                    int scoreB = (tableRecords[j + 1].difficultyUnlocked * 3) + tableRecords[j + 1].highestLevel;
+                    if (scoreA < scoreB) {
+                        PlayerRecord temp = tableRecords[j];
+                        tableRecords[j] = tableRecords[j + 1];
+                        tableRecords[j + 1] = temp;
+                    }
+                }
+            }
+
+            // Display sorted rows
+            int yOffset = 190;
+            for (int i = 0; i < totalRecords && i < 10; i++) {
+                const char* rankStr = GetNinjaRank(tableRecords[i].difficultyUnlocked, tableRecords[i].highestLevel);
+                
+                const char* diffStr = "EASY";
+         if (tableRecords[i].difficultyUnlocked == DIFF_MEDIUM) diffStr = "MEDIUM";
+                if (tableRecords[i].difficultyUnlocked == DIFF_HARD) diffStr = "HARD";
+
+                char lvlStr[10];
+                sprintf(lvlStr, "%d", tableRecords[i].highestLevel-1);
+
+                // Draw rows clearly matching your sketch columns
+                DrawText(tableRecords[i].name, 130, yOffset, 20, WHITE);
+                DrawText(rankStr, 310, yOffset, 20, YELLOW);
+                DrawText(diffStr, 500, yOffset, 20, WHITE);
+                DrawText(lvlStr, 720, yOffset, 20, WHITE);
+
+                yOffset += 40;
+            }
+
+            if (totalRecords == 0) {
+                DrawText("No records found yet. Play a game!", screenwidth / 2 - MeasureText("No records found yet. Play a game!", 20) / 2, 300, 20, LIGHTGRAY);
+            }
+
+            DrawButton("BACKSPACE : Go Back", screenwidth / 2, 630, 18, 20, 8);
+
+            if (key == KEY_BACKSPACE || key == KEY_ESCAPE)
+            {
+                currentScreen = MAIN_MENU;
+            }
+            break;
         }
+        }
+        
     
         EndDrawing();
 
@@ -838,4 +988,5 @@ DrawText("PRESS [ENTER] TO RETURN",screenwidth/2-220,screenheight/2+60,30,RED);
     CloseWindow();   
 
     return 0;
-}
+
+    }
