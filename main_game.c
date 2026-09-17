@@ -67,8 +67,6 @@ const char* GetNinjaRank(int diff, int level) {
     return "Not Yet";
 }
 
-// Load player progress for the specific name entered, or reset if new
-
 GameScreen currentScreen=TITLE;
 Difficultymode selecteddiff=DIFF_EASY;
 int selectedlevel=1;
@@ -96,7 +94,6 @@ char inputword[100];
 int wordlength=0;
 
 //new
-// 1. Save the maximum unlocked level instead of just the last played level
 void SaveRecord() {
     PlayerRecord records[50];
     int totalRecords = 0;
@@ -110,7 +107,6 @@ void SaveRecord() {
             if (strcmp(filePlayer, playerName) == 0) {
                 strcpy(records[totalRecords].name, playerName);
                 records[totalRecords].difficultyUnlocked = (maxdifficultyunlocked > fileDiff) ? maxdifficultyunlocked : fileDiff;
-                // Save the highest unlocked level between file and current progress
               int currentMaxLvl = maxlevelunlocked[fileDiff]; 
         records[totalRecords].highestLevel = (currentMaxLvl > fileLevel) ? currentMaxLvl : fileLevel;
                 found = true;
@@ -139,8 +135,6 @@ void SaveRecord() {
         fclose(f);
     }
 }
-
-// 2. Properly restore the unlocked level bounds when reloading a player
 void LoadPlayerProgress() {
     FILE *f = fopen("records.txt", "r");
     bool found = false;
@@ -153,8 +147,8 @@ void LoadPlayerProgress() {
             if (strcmp(filePlayer, playerName) == 0) {
                 maxdifficultyunlocked = fileDiff;
                 selecteddiff = fileDiff;
-                maxlevelunlocked[fileDiff] = fileLevel; // Restores unlocked levels (e.g., level 3 unlocked)
-                selectedlevel = 1; // Default back to level 1 selection, but keep higher levels unlocked
+                maxlevelunlocked[fileDiff] = fileLevel; 
+                selectedlevel = 1;
                 found = true;
                 break;
             }
@@ -569,7 +563,7 @@ case NAME_ENTRY:
 
         if (key == KEY_ENTER && nameLength > 0)
         {
-            LoadPlayerProgress(); // <-- Loads past save or resets for a new player!
+            LoadPlayerProgress(); 
             currentScreen = DIFFICULTY;
         }
 
@@ -669,7 +663,6 @@ break;
             maxlevelunlocked[selecteddiff] = nextLevel;
         }
         
-        // Progression rules: Advance difficulty tier only after completing Level 3
         if(selecteddiff == DIFF_EASY && selectedlevel == 3)
         {
             if(maxdifficultyunlocked < DIFF_MEDIUM)
@@ -927,7 +920,7 @@ DrawText("PRESS [ESCAPE] TO RETURN",screenwidth/2-220,screenheight/2+60,30,RED);
                 fclose(f);
             }
 
-            // Sort records: Highest progress (Difficulty * 3 + Level) comes first
+        
             for (int i = 0; i < totalRecords - 1; i++) {
                 for (int j = 0; j < totalRecords - i - 1; j++) {
                     int scoreA = (tableRecords[j].difficultyUnlocked * 3) + tableRecords[j].highestLevel;
@@ -940,7 +933,7 @@ DrawText("PRESS [ESCAPE] TO RETURN",screenwidth/2-220,screenheight/2+60,30,RED);
                 }
             }
 
-            // Display sorted rows
+    
             int yOffset = 190;
             for (int i = 0; i < totalRecords && i < 10; i++) {
                 const char* rankStr = GetNinjaRank(tableRecords[i].difficultyUnlocked, tableRecords[i].highestLevel);
@@ -952,7 +945,7 @@ DrawText("PRESS [ESCAPE] TO RETURN",screenwidth/2-220,screenheight/2+60,30,RED);
                 char lvlStr[10];
                 sprintf(lvlStr, "%d", tableRecords[i].highestLevel-1);
 
-                // Draw rows clearly matching your sketch columns
+            
                 DrawText(tableRecords[i].name, 130, yOffset, 20, WHITE);
                 DrawText(rankStr, 310, yOffset, 20, YELLOW);
                 DrawText(diffStr, 500, yOffset, 20, WHITE);
