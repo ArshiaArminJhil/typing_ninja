@@ -35,14 +35,6 @@ typedef enum {
     DIFF_HARD
 }Difficultymode;
 
-
-
-typedef struct{
-char text[MAX_LEN];
-Vector2 position;
-float speed;
-bool active;
-}Fallingword;
 //new
 typedef struct {
     char name[30];
@@ -66,11 +58,25 @@ const char* GetNinjaRank(int diff, int level) {
     
     return "Not Yet";
 }
-=======
+typedef struct{
+char text[MAX_LEN];
+Vector2 position;
+float speed;
+bool active;
+bool issliced;
+char lefthalf[MAX_LEN];
+char righthalf[MAX_LEN];
+Vector2 leftvelocity;
+Vector2 rightvelocity;
+Vector2 leftposoffset;
+Vector2 rightposoffset;
+float slashtimer;
+Vector2 slashstart;
+Vector2 slashend;
+}Fallingword;
+
 Sound slicesound;
 
-
->>>>>>> 946b09444a4a5788eb65ed0c56672ba1c705ce89
 
 GameScreen currentScreen=TITLE;
 Difficultymode selecteddiff=DIFF_EASY;
@@ -306,7 +312,7 @@ if(spawntime>=spawninterval)
     }
 
 
-}
+
 
 void handleplayertyping()
 {
