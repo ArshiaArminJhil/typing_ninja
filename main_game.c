@@ -735,7 +735,14 @@ break;
     updatefallingword(deltatime);
     handleplayertyping();
     
-    
+    if(timer <= 0.0f && score < target)
+    {
+        complete_target = false; 
+        SaveRecord();            
+        currentScreen = GAMEOVER;
+        break;                   
+    }
+
     if(score >= target)
     {
         complete_target = true;
