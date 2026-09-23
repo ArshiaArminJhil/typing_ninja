@@ -379,7 +379,7 @@ void poweruponspawn(int wordindex)
     if(selecteddiff==DIFF_MEDIUM||selecteddiff==DIFF_HARD)
     {
         int chance=GetRandomValue(1,100);
-        if(chance<=20)
+        if(chance<=28)
         {
         int typechoice=GetRandomValue(1,4);
 
@@ -704,24 +704,25 @@ void levelsetting(Difficultymode diff, int level)
             canusewarp=true;
             canusewipe=true;
             if(level == 1)      { timer = 60.0f; target = 100; }
-            else if(level == 2) { timer = 50.0f; target = 200; }
-            else                { timer = 40.0f; target = 300; }
+            else if(level == 2) { timer = 50.0f; target = 150; }
+            else                { timer = 40.0f; target = 200; }
+            
             break;
         }
         case DIFF_MEDIUM:
         {
-            speed = 130.0f;
-            if(level == 1)      { timer = 40.0f; target = 150; }
-            else if(level == 2) { timer = 35.0f; target = 250; }
-            else                { timer = 30.0f; target = 350; }
+            speed = 110.0f;
+            if(level == 1)      { timer = 60.0f; target = 150; }
+            else if(level == 2) { timer = 50.0f; target = 200; }
+            else                { timer = 40.0f; target = 250; }
             break;
         }
         case DIFF_HARD:
         {
-            speed = 180.0f;
-            if(level == 1)      { timer = 30.0f; target = 200; }
-            else if(level == 2) { timer = 25.0f; target = 300; }
-            else                { timer = 20.0f; target = 450; }
+            speed = 200.0f;
+            if(level == 1)      { timer = 60.0f; target = 200; }
+            else if(level == 2) { timer = 50.0f; target = 300; }
+            else                { timer = 40.0f; target = 400; }
             break;
         }
     }
@@ -1299,7 +1300,7 @@ if (screenword[i].slashtimer>0.0f)
                             case powerup_freeze:scrollparchmentcolor=BLUE;break;
                             case powerup_rush:scrollparchmentcolor=RED;break;
                             case powerup_shock:scrollparchmentcolor=PURPLE;break;
-                            case powerup_shrink:scrollparchmentcolor=(Color){242,222,179,255};break;
+                            case powerup_shrink:scrollparchmentcolor=GREEN;break;
                         }
                     }
              //DrawButton(screenword[i].text,screenword[i].position.x,screenword[i].position.y,20,15,9);
@@ -1313,18 +1314,18 @@ if (screenword[i].slashtimer>0.0f)
 
         if(activeglobalpowerup==powerup_bullet_time)
         {
-            DrawText(TextFormat("SLOW MOTION ACTIVE:%.1fs",poweruptimer),screenwidth/2-100,20,22,BLUE);
+            DrawButton(TextFormat("SLOW MOTION ACTIVE:%.1fs",poweruptimer),screenwidth/2-70,screenheight-100,20,10,5);
             
         }
 
         else if(activeglobalpowerup==powerup_freeze)
         {
-            DrawText(TextFormat("TIME FROZEN:%.1fs",poweruptimer),screenwidth/2-100,20,22,BLUE);
+            DrawButton(TextFormat("TIME FROZEN:%.1fs",poweruptimer),screenwidth/2-70,screenheight-100,20,10,5);
 
         }
           else if(activeglobalpowerup==powerup_hyper_speed||activeglobalpowerup==powerup_rush)
           {
-            DrawText(TextFormat("SCORE RUSH:%.1fs",poweruptimer),screenwidth/2-100,20,22,BLUE);
+            DrawButton(TextFormat("SCORE RUSH:%.1fs",poweruptimer),screenwidth/2-70,screenheight-100,20,10,5);
 
           }
 
@@ -1343,10 +1344,10 @@ if (screenword[i].slashtimer>0.0f)
           else
           {
            // DrawText("powerup codes:",50,screenheight-50,20,DARKGRAY);
-          DrawText("BLUE:FREEZE",300,screenheight-150,20,BLUE);
-            DrawText("RED:RUSH",500,screenheight-150,20,RED);
-            DrawText("PURPLE:SHOCK",700,screenheight-150,20,PURPLE);
-            DrawText("YELLOW:SHRINK",900,screenheight-150,20,YELLOW);
+          DrawText("BLUE:FREEZE",200,screenheight-150,20,BLUE);
+            DrawText("RED:RUSH",400,screenheight-150,20,RED);
+            DrawText("PURPLE:SHOCK",550,screenheight-150,20,PURPLE);
+            DrawText("GREEN:SHRINK",750,screenheight-150,20,GREEN);
 
 
           }
