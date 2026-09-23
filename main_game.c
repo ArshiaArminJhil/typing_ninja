@@ -9,7 +9,7 @@
 #define screenheight 800
 #define MAX_LINE 50
 #define MAX_LEN 30
-#define MAX_WORD_ONSCREEN 5
+#define MAX_WORD_ONSCREEN 8
 #define bottom_line_y 582
 
 
@@ -35,6 +35,21 @@ typedef enum {
     DIFF_HARD
 }Difficultymode;
 
+
+
+
+typedef enum
+{
+    powerup_none=0,
+    powerup_bullet_time,
+    powerup_hyper_speed,
+    powerup_time_warp,
+    powerup_screen_wipe,
+    powerup_freeze,
+    powerup_rush,
+    powerup_shock,
+    powerup_shrink,
+}poweruptype;
 //new
 typedef struct {
     char name[30];
@@ -63,6 +78,7 @@ char text[MAX_LEN];
 Vector2 position;
 float speed;
 bool active;
+poweruptype powerupeffect;
 bool issliced;
 char lefthalf[MAX_LEN];
 char righthalf[MAX_LEN];
@@ -77,6 +93,19 @@ Vector2 slashend;
 
 Sound slicesound;
 
+
+
+
+poweruptype activeglobalpowerup=powerup_none;
+float poweruptimer=0.0f;
+float speedmodifier=1.0f;
+int scoremultiplier=1;
+bool iswipingdown=false;
+
+bool canusebullet=false;
+bool canusehyper=false;
+bool canusewarp=false;
+bool canusewipe=false;
 
 GameScreen currentScreen=TITLE;
 Difficultymode selecteddiff=DIFF_EASY;
@@ -93,7 +122,7 @@ bool GAME_OVER=false;
 bool complete_target=false;
 bool ismuted=false;
 float spawntime=0.0f;
-float spawninterval=2.0f;
+float spawninterval=1.0f;
 int maxlevelunlocked[3] = {1, 1, 1};
 
 
@@ -213,6 +242,19 @@ complete_target=false;
  spawntime=0.0f;
  wordlength=0;
    inputword[wordlength]='\0';
+
+ activeglobalpowerup=powerup_none;
+ poweruptimer=0.0f;
+ speedmodifier=1.0f;
+ scoremultiplier=1;
+ iswipingdown=false;
+ canusebullet=false;
+ canusehyper=false;
+ canusewarp=false;
+ canusewipe=false;
+
+
+
     for(int i=0;i<MAX_WORD_ONSCREEN;i++)
     {
         screenword[i].active=false;
@@ -222,12 +264,142 @@ complete_target=false;
         screenword[i].slashtimer=0.0f;
         screenword[i].lefthalf[0]='\0';
         screenword[i].righthalf[0]='\0';
+
+
+        screenword[i].powerupeffect=powerup_none;
     }
 
     
 
 }
 
+
+
+void activatepowerup(poweruptype type)
+{
+    if(type!=powerup_screen_wipe)
+    {
+        speedmodifier=1.0f;
+        scoremultiplier=1;
+    }
+    switch(type)
+    {
+        case powerup_bullet_time:
+        {
+            speedmodifier=0.5f;
+            poweruptimer=10.0f;
+            activeglobalpowerup=powerup_bullet_time;
+            break;
+        }
+
+
+        case powerup_hyper_speed:
+        {
+            speedmodifier=2.0f;
+            scoremultiplier=2;
+            poweruptimer=10.0f;
+            activeglobalpowerup=powerup_hyper_speed;
+            break;
+        }
+
+
+        case powerup_time_warp:
+        {
+            timer+=10.0f;
+            break;
+        }
+
+
+
+        case powerup_screen_wipe:
+        {
+            iswipingdown=true;
+            break;
+        }
+
+
+
+
+        case powerup_freeze:
+        {
+            speedmodifier=0.0f;
+            poweruptimer=5.0f;
+            activeglobalpowerup=powerup_freeze;
+            break;
+        }
+
+
+
+                case powerup_rush:
+        {
+            speedmodifier=2.5f;
+            scoremultiplier=3;
+            poweruptimer=5.0f;
+            activeglobalpowerup=powerup_rush;
+            break;
+        }
+
+
+        case powerup_shock:
+        {
+            for(int i=0;i<MAX_WORD_ONSCREEN;i++)
+            {
+                if(screenword[i].active&&screenword[i].position.y>screenheight*0.5f)
+                {
+                    screenword[i].active=false;
+
+                }
+            }
+            break;
+        }
+
+
+
+
+        case powerup_shrink:
+        {
+            for(int i=0;i<MAX_WORD_ONSCREEN;i++)
+            {
+                if(screenword[i].active&&strlen(screenword[i].text)>3)
+                {
+                    screenword[i].text[3]='\0';
+                }
+            }
+            break;
+        }
+
+    }
+}
+
+
+void poweruponspawn(int wordindex)
+{
+    screenword[wordindex].powerupeffect=powerup_none;
+
+    if(selecteddiff==DIFF_MEDIUM||selecteddiff==DIFF_HARD)
+    {
+        int chance=GetRandomValue(1,100);
+        if(chance<=20)
+        {
+        int typechoice=GetRandomValue(1,4);
+
+switch(typechoice)
+
+        {
+            case 1:screenword[wordindex].powerupeffect=powerup_freeze;break;
+
+           case 2:screenword[wordindex].powerupeffect=powerup_rush;break;
+            case 3:screenword[wordindex].powerupeffect=powerup_shock;break;
+            case 4:screenword[wordindex].powerupeffect=powerup_shrink;break;
+
+
+            
+
+        }
+
+    }
+}
+}
 
 
 void spawnword(int index)
@@ -240,7 +412,70 @@ void spawnword(int index)
     screenword[index].active=true;
     screenword[index].lefthalf[0]='\0';
     screenword[index].righthalf[0]='\0';
+    poweruponspawn(index);
+int fontSize = 22;
+    int textWidth = MeasureText(screenword[index].text, fontSize);
+    int scrollWidth = textWidth + 30;
+    int ninjaSize = 32;
+    int spacing = 6;
+    
+    
+    float totalWidth = (float)(ninjaSize + spacing + scrollWidth);
+    float boxHeight = (float)(fontSize + 16); 
+
+    int maxAttempts = 50; 
+    int attempts = 0;
+    bool hasCollision = true;
+
+    while (hasCollision && attempts < maxAttempts)
+    {
+        
+        
+        screenword[index].position.x = (float)GetRandomValue(200, screenwidth - 200);
+        screenword[index].position.y = (float)GetRandomValue(-150, -40);
+
+        
+        
+        Rectangle newWordRec = { 
+            screenword[index].position.x - (totalWidth / 2.0f), 
+            screenword[index].position.y, 
+            totalWidth, 
+            boxHeight 
+        };
+
+        hasCollision = false;
+
+        
+        for (int k = 0; k < MAX_WORD_ONSCREEN; k++)
+        {
+            
+            if (k == index || !screenword[k].active || screenword[k].issliced) continue;
+
+            
+            int checkTextWidth = MeasureText(screenword[k].text, fontSize);
+            float checkTotalWidth = (float)(ninjaSize + spacing + checkTextWidth + 30);
+
+            Rectangle existingWordRec = {
+                screenword[k].position.x - (checkTotalWidth / 2.0f),
+                screenword[k].position.y,
+                checkTotalWidth,
+                boxHeight
+            };
+
+            
+            if (CheckCollisionRecs(newWordRec, existingWordRec))
+            {
+                hasCollision = true; 
+                break; 
+            }
+        }
+        attempts++;
+    }
+    
 }
+
+
+
 
 
 
@@ -249,6 +484,43 @@ void updatefallingword(float dt)
 {
    timer-=dt;
  spawntime+=dt;
+
+
+
+ if(activeglobalpowerup!=powerup_none)
+ {
+    poweruptimer-=dt;
+    if(poweruptimer<=0.0f)
+    {
+        speedmodifier=1.0f;
+        scoremultiplier=1;
+        activeglobalpowerup=powerup_none;
+    }
+ }
+
+
+ if(canusebullet && IsKeyPressed(KEY_ONE))
+ {  
+    activatepowerup(powerup_bullet_time);
+    canusebullet=false;
+ }
+
+  if(canusehyper && IsKeyPressed(KEY_TWO))
+ {  
+    activatepowerup(powerup_hyper_speed);
+    canusehyper=false;
+ }
+ if(canusewarp && IsKeyPressed(KEY_THREE))
+ {  
+    activatepowerup(powerup_time_warp);
+    canusewarp=false;
+ }
+ if(canusewipe && IsKeyPressed(KEY_FOUR))
+ {  
+    activatepowerup(powerup_screen_wipe);
+    canusewipe=false;
+ }
+
 if(spawntime>=spawninterval)
 
 {
@@ -262,12 +534,15 @@ if(spawntime>=spawninterval)
     }
     spawntime=0.0f;
 }
+
+bool activewordleft=false;
     for(int i=0;i<MAX_WORD_ONSCREEN;i++)
     {
         if(!screenword[i].active)
         {
         continue;
         }
+        activewordleft=true;
         if(screenword[i].issliced)
         {
 
@@ -301,14 +576,38 @@ if(spawntime>=spawninterval)
             
             else
             {
-            screenword[i].position.y+=screenword[i].speed*dt;
+
+                if(iswipingdown)
+                {
+                    screenword[i].position.y+=800.0f*dt;
+                }
+
+                else
+                {
+                    screenword[i].position.y+=screenword[i].speed*dt*speedmodifier;
+
+                }
             if(screenword[i].position.y>=bottom_line_y)
             {
+
+                if(iswipingdown)
+                {
+                    score+=10*scoremultiplier;
+                }
+                else
+                {
+                     score-=5;
+
+                }
                 screenword[i].active=false;
-                score-=5;
             }
         }
+    }
+        if(iswipingdown&&!activewordleft)
+        {
+            iswipingdown=false;
         }
+        
     }
 
 
@@ -345,6 +644,12 @@ if(IsKeyPressed(KEY_ENTER))
         {
                 if(strcmp(screenword[i].text,inputword)==0)
                 {
+
+
+                    if(screenword[i].powerupeffect!=powerup_none)
+                    {
+                        activatepowerup(screenword[i].powerupeffect);
+                    }
                    // screenword[i].active=false;
                    screenword[i].issliced=true;
                     score+=10;
@@ -393,7 +698,11 @@ void levelsetting(Difficultymode diff, int level)
     {
         case DIFF_EASY:
         {
-            speed = 80.0f;
+            speed = 100.0f;
+            canusebullet=true;
+            canusehyper=true;
+            canusewarp=true;
+            canusewipe=true;
             if(level == 1)      { timer = 60.0f; target = 100; }
             else if(level == 2) { timer = 50.0f; target = 200; }
             else                { timer = 40.0f; target = 300; }
@@ -423,7 +732,7 @@ void levelsetting(Difficultymode diff, int level)
 
 
 
-void DrawNinjaHoldingScroll(const char *wordText, int centerX, int y, int fontSize, const char *currentInput)
+void DrawNinjaHoldingScroll(const char *wordText, int centerX, int y, int fontSize, const char *currentInput,Color scrollcolor)
 {
     int inputLen = strlen(currentInput);
     int wordLen = strlen(wordText);
@@ -465,7 +774,7 @@ void DrawNinjaHoldingScroll(const char *wordText, int centerX, int y, int fontSi
 
     // DRAW BACKGROUND PAPYRUS CANVAS SHEET 
     Color parchmentColor = (Color){ 242, 222, 179, 255 }; 
-    DrawRectangle(scrollX, y, scrollWidth, scrollHeight, parchmentColor);
+    DrawRectangle(scrollX, y, scrollWidth, scrollHeight, scrollcolor);
     DrawRectangleLines(scrollX, y, scrollWidth, scrollHeight, BLACK);
 
     // DRAW ROLLED WOODEN SCROLL EDGES 
@@ -971,13 +1280,78 @@ if (screenword[i].slashtimer>0.0f)
   
                 }
                 else{
+
+
+
+                    Color scrollparchmentcolor=(Color){242,222,179,255};
+
+                    if(activeglobalpowerup!=powerup_none)
+                    {
+                      Color scrollparchmentcolor=(Color){242,222,179,255};
+
+                       // scrollparchmentcolor=WHITE;
+                    }
+
+                    else
+                    {
+                        switch(screenword[i].powerupeffect)
+                        {
+                            case powerup_freeze:scrollparchmentcolor=BLUE;break;
+                            case powerup_rush:scrollparchmentcolor=RED;break;
+                            case powerup_shock:scrollparchmentcolor=PURPLE;break;
+                            case powerup_shrink:scrollparchmentcolor=(Color){242,222,179,255};break;
+                        }
+                    }
              //DrawButton(screenword[i].text,screenword[i].position.x,screenword[i].position.y,20,15,9);
 
-             DrawNinjaHoldingScroll(screenword[i].text,screenword[i].position.x,screenword[i].position.y,22,inputword);
+             DrawNinjaHoldingScroll(screenword[i].text,screenword[i].position.x,screenword[i].position.y,22,inputword,scrollparchmentcolor);
             }
 
             }
         }
+
+
+        if(activeglobalpowerup==powerup_bullet_time)
+        {
+            DrawText(TextFormat("SLOW MOTION ACTIVE:%.1fs",poweruptimer),screenwidth/2-100,20,22,BLUE);
+            
+        }
+
+        else if(activeglobalpowerup==powerup_freeze)
+        {
+            DrawText(TextFormat("TIME FROZEN:%.1fs",poweruptimer),screenwidth/2-100,20,22,BLUE);
+
+        }
+          else if(activeglobalpowerup==powerup_hyper_speed||activeglobalpowerup==powerup_rush)
+          {
+            DrawText(TextFormat("SCORE RUSH:%.1fs",poweruptimer),screenwidth/2-100,20,22,BLUE);
+
+          }
+
+
+          if(selecteddiff==DIFF_EASY)
+          {
+            DrawButton("ITEMS(1-4:)",100,screenheight-150,20,10,5);
+             DrawButton(canusebullet?"1:slow":"used",300,screenheight-150,20,10,5);
+            DrawButton(canusehyper?"2:rush":"used",500,screenheight-150,20,10,5);
+            DrawButton(canusewarp?"3:warp":"used",700,screenheight-150,20,10,5);
+            DrawButton(canusewipe?"4:wipe":"used",900,screenheight-150,20,10,5);
+
+          }
+
+
+          else
+          {
+           // DrawText("powerup codes:",50,screenheight-50,20,DARKGRAY);
+          DrawText("BLUE:FREEZE",300,screenheight-150,20,BLUE);
+            DrawText("RED:RUSH",500,screenheight-150,20,RED);
+            DrawText("PURPLE:SHOCK",700,screenheight-150,20,PURPLE);
+            DrawText("YELLOW:SHRINK",900,screenheight-150,20,YELLOW);
+
+
+          }
+
+
                      DrawText(TextFormat("INPUT:%s",inputword),50,750,40,RED);
 
 
