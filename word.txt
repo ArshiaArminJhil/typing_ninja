@@ -1,3 +1,0 @@
-read write store code ninja active bool input output word fall
-type speed position include define swap happy sad tool road
-house bad sadness depression jealousy

@@ -210,7 +210,7 @@ void LoadPlayerProgress() {
 int loadword(char* filename)
 {
     FILE *f;
-    f=fopen("word.txt","r");
+    f=fopen(filename,"r");
     if(f==NULL)
     {
 return 0;
@@ -403,9 +403,8 @@ switch(typechoice)
 }
 
 
-void spawnword(int index)
-{
-    int i=rand()%totalword;
+void spawnword(int index)  
+{ int i=rand()%totalword;
     strcpy(screenword[index].text,word[i]);
     screenword[index].position.x=GetRandomValue(200,screenwidth-200);
     screenword[index].position.y=GetRandomValue(-150,-40);
@@ -708,6 +707,7 @@ void levelsetting(Difficultymode diff, int level)
             if(level == 1)      { timer = 60.0f; target = 05; }
             else if(level == 2) { timer = 50.0f; target = 150; }
             else                { timer = 40.0f; target = 200; }
+            loadword("wordeasy.txt");
             
             break;
         }
@@ -717,6 +717,7 @@ void levelsetting(Difficultymode diff, int level)
             if(level == 1)      { timer = 60.0f; target = 150; }
             else if(level == 2) { timer = 50.0f; target = 200; }
             else                { timer = 40.0f; target = 250; }
+            loadword("wordmedium.txt");
             break;
         }
         case DIFF_HARD:
@@ -725,10 +726,11 @@ void levelsetting(Difficultymode diff, int level)
             if(level == 1)      { timer = 60.0f; target = 200; }
             else if(level == 2) { timer = 50.0f; target = 300; }
             else                { timer = 40.0f; target = 400; }
+            loadword("wordhard.txt");
             break;
         }
     }
-    loadword("word.txt");
+    //loadword("word.txt");
 }
 
 
@@ -927,6 +929,8 @@ Texture2D mainmenu =LoadTexture("coverphoto_medium.png");
 //printf("Easy image: %d x %d\n", easy.width, easy.height);
 slicesound=LoadSound("daviddumaisaudio-sword-slash-with-metallic-impact-185435.mp3");
 SetSoundVolume(slicesound,0.8f);
+Sound keySound = LoadSound("buttonclick.wav");
+SetSoundVolume(keySound, 10.0f);
 Music backgroundMusic = LoadMusicStream("background_music.mp3");
 PlayMusicStream(backgroundMusic);
 GameScreen currentScreen = TITLE;
@@ -942,6 +946,10 @@ GameScreen currentScreen = TITLE;
     {
     UpdateMusicStream(backgroundMusic);
      int key = GetKeyPressed();
+     if(key>0)
+     {
+        PlaySound(keySound);
+     }
      float deltatime=GetFrameTime();
 
     switch (currentScreen)
@@ -1556,6 +1564,7 @@ DrawButton("PRESS [ESCAPE] TO RETURN",screenwidth/2,screenheight/2+60,30,20,8);
     StopMusicStream(backgroundMusic); 
     UnloadMusicStream(backgroundMusic);
     UnloadSound(slicesound);
+    UnloadSound(keySound);
     CloseAudioDevice();
 
     CloseWindow();   
