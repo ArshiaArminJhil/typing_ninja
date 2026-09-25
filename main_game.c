@@ -891,6 +891,7 @@ InitAudioDevice();
 SetTargetFPS(60);
 
 Texture2D ninjaLogo = LoadTexture("ninja_logo.png");
+Texture2D ninjaLogo2 =LoadTexture("ninjalogo2.png");
 Texture2D easy = LoadTexture("coverphoto_easy.png");
 Texture2D records =LoadTexture("coverphoto_hard.png");
 //if(easy.id<=0)
@@ -1146,13 +1147,12 @@ case GAMEOVER:
         case TITLE:
         {//Logo bg for title screen
             DrawTexturePro(
-                ninjaLogo,
+                ninjaLogo2,
         (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
          (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
         (Vector2){ 0, 0 },0.0f,WHITE
         );
         DrawRectangle(0,0,screenwidth,screenheight,(Color){ 0, 0, 0, 80 });
-        DrawButton("Press ENTER to Start",screenwidth/2,420,30,25,12);
         break;
         }
 
