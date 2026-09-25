@@ -704,7 +704,8 @@ void levelsetting(Difficultymode diff, int level)
             canusehyper=true;
             canusewarp=true;
             canusewipe=true;
-            if(level == 1)      { timer = 60.0f; target = 100; }
+            //change
+            if(level == 1)      { timer = 60.0f; target = 05; }
             else if(level == 2) { timer = 50.0f; target = 150; }
             else                { timer = 40.0f; target = 200; }
             
@@ -881,6 +882,30 @@ void DrawButton(const char *text, int posX, int posY, int fontSize, int paddingX
     DrawText(text, posX - textWidth / 2, posY, fontSize, WHITE);
 }
 
+// Custom button function supporting neon colors
+void DrawNeonButton(const char *text, int posX, int posY, int width, int height, Color themeColor) 
+{
+    Rectangle rect = { (float)posX, (float)posY, (float)width, (float)height };
+    
+    // Semi transparent dark background so the text is readable
+    Color darkBg = { 15, 15, 20, 220 };
+    
+    // Draws background box with rounded edges
+    DrawRectangleRounded(rect, 0.4f, 4, darkBg);
+    
+    // Draws the bright neon outline border 
+    DrawRectangleRoundedLines(rect, 0.4f, 4, themeColor);
+    
+    // Measures text to center it 
+    int fontSize = 18;
+    int textWidth = MeasureText(text, fontSize);
+    int textX = posX + (width - textWidth) / 2;
+    int textY = posY + (height - fontSize) / 2;
+    
+    // Draws the text in its themecolor
+    DrawText(text, textX, textY, fontSize, themeColor);
+}
+
 
 int main()
 {
@@ -890,10 +915,11 @@ SetExitKey(0);
 InitAudioDevice();
 SetTargetFPS(60);
 
-Texture2D ninjaLogo = LoadTexture("ninja_logo.png");
+//Texture2D ninjaLogo = LoadTexture("ninja_logo.png");
 Texture2D ninjaLogo2 =LoadTexture("ninjalogo2.png");
 Texture2D easy = LoadTexture("coverphoto_easy.png");
 Texture2D records =LoadTexture("coverphoto_hard.png");
+Texture2D mainmenu =LoadTexture("coverphoto_medium.png");
 //if(easy.id<=0)
 //{
 //TraceLog(LOG_WARNING,"EMAGE FAILED TO LOAD");
@@ -905,10 +931,16 @@ Music backgroundMusic = LoadMusicStream("background_music.mp3");
 PlayMusicStream(backgroundMusic);
 GameScreen currentScreen = TITLE;
 
+    Color neonBlue = { 0, 200, 255, 255 };
+    Color neonRed = { 255, 50, 50, 255 };
+    Color neonPurple = { 200, 50, 255, 255 };
+    Color neonGreen = { 50, 255, 100, 255 };
+    Color darkBg = { 15, 15, 20, 220 };
+
+
     while (!WindowShouldClose())
     {
     UpdateMusicStream(backgroundMusic);
-
      int key = GetKeyPressed();
      float deltatime=GetFrameTime();
 
@@ -1152,34 +1184,34 @@ case GAMEOVER:
          (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
         (Vector2){ 0, 0 },0.0f,WHITE
         );
-        DrawRectangle(0,0,screenwidth,screenheight,(Color){ 0, 0, 0, 80 });
+        DrawRectangle(0,0,screenwidth,screenheight,(Color){ 0, 0, 0, 100 });
         break;
         }
 
         case MAIN_MENU:
         {
             DrawTexturePro(
-                ninjaLogo,
-                (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
+                mainmenu,
+                (Rectangle){ 0, 0, (float)mainmenu.width, (float)mainmenu.height },
                 (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
                 (Vector2){ 0, 0 }, 0.0f, WHITE
             );
-            DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 130 });
+            DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 0});
             DrawButton(ismuted ? "Unmute" : "Mute", screenwidth - 90, 40, 20, 15, 8);
-            DrawButton("MAIN MENU", screenwidth / 2, 120, 28, 25, 10);
-            DrawButton("[P] Play Game", screenwidth / 2, 210, 28, 25, 10);
+            DrawButton("MAIN MENU", screenwidth / 2, 120,50,30, 10);
+            DrawButton("[P] Play Game", screenwidth / 2, 230, 35, 30, 10);
         
-            DrawButton("[R] View Records", screenwidth / 2, 270, 24, 25, 10);
+            DrawButton("[R] View Records", screenwidth / 2, 300, 35, 30, 10);
             
-            DrawButton("[X] Exit", screenwidth / 2, 340, 18, 20, 8);
-            DrawButton("BACKSPACE : Go Back", screenwidth / 2, 420, 18, 20, 8);
+            DrawButton("[X] Exit", screenwidth / 2, 370, 25, 25, 8);
+            DrawButton("BACKSPACE : Go Back", screenwidth / 2, 450, 25, 25, 8);
             break;
         }
 
 case NAME_ENTRY:
 {DrawTexturePro(
-                ninjaLogo,
-        (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
+                mainmenu,
+        (Rectangle){ 0, 0, (float)mainmenu.width, (float)mainmenu.height },
          (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
         (Vector2){ 0, 0 },0.0f,WHITE
         );
@@ -1200,8 +1232,8 @@ case NAME_ENTRY:
         case DIFFICULTY:
         {
             DrawTexturePro(
-                ninjaLogo,
-        (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
+                mainmenu,
+        (Rectangle){ 0, 0, (float)mainmenu.width, (float)mainmenu.height },
          (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
         (Vector2){ 0, 0 },0.0f,WHITE
         );
@@ -1235,8 +1267,8 @@ case NAME_ENTRY:
         
           {
              DrawTexturePro( 
-                ninjaLogo,
-                (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
+                mainmenu,
+                (Rectangle){ 0, 0, (float)mainmenu.width, (float)mainmenu.height },
                 (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
                 (Vector2){ 0, 0 }, 0.0f, WHITE);
             DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 130 });
@@ -1260,9 +1292,9 @@ case NAME_ENTRY:
             case LEVEL_READY:
         {
         DrawTexturePro(
-                ninjaLogo,
+                mainmenu,
                 
-                (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
+                (Rectangle){ 0, 0, (float)mainmenu.width, (float)mainmenu.height },
                 (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
                 (Vector2){ 0, 0 }, 0.0f, WHITE
                 
@@ -1290,16 +1322,8 @@ case NAME_ENTRY:
                 DrawButton(TextFormat("SCORE: %d",score),80,20,20,10,6);
     DrawButton(TextFormat("TIME: %.1f s",timer),80,60,20,10,6);
     DrawButton(TextFormat("TARGET: %d",target),80,100,20,10,6);
-    DrawText("PRESS [ESC] TO PAUSE", screenwidth / 2 - MeasureText("PRESS [ESC] TO PAUSE", 20) / 2, screenheight - 40, 20, DARKGRAY);
-    if (isPaused)
-    { 
-        // Dim the background
-        DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 180 });
-
-        // Draw your neon pause menu using your upgraded button function!
-        DrawButton("GAME PAUSED", screenwidth / 2, screenheight / 2 - 50, 30, 20, 10);
-        DrawButton("PRESS [ESC] TO RESUME", screenwidth / 2, screenheight / 2 + 20, 20, 15, 8);
-    }
+    DrawText("PRESS [ESC] TO PAUSE",700, screenheight - 40, 20, RAYWHITE);
+   
         for(int i=0;i<MAX_WORD_ONSCREEN;i++)
         {
             if(screenword[i].active)
@@ -1390,35 +1414,52 @@ if (screenword[i].slashtimer>0.0f)
           else
           {
            // DrawText("powerup codes:",50,screenheight-50,20,DARKGRAY);
-          DrawText("BLUE:FREEZE",200,screenheight-150,20,BLUE);
-            DrawText("RED:RUSH",400,screenheight-150,20,RED);
-            DrawText("PURPLE:SHOCK",550,screenheight-150,20,PURPLE);
-            DrawText("GREEN:SHRINK",750,screenheight-150,20,GREEN);
-
+         // Define your specific neon colors
+DrawNeonButton("BLUE FREEZE", 100, 680, 150, 35, neonBlue);
+DrawNeonButton("RED RUSH", 320, 680, 150, 35, neonRed);
+DrawNeonButton("PURPLE SHOCK", 520, 680, 150, 35, neonPurple);
+DrawNeonButton("GREEN SHRINK", 750, 680, 150, 35, neonGreen);
 
           }
 
 
                      DrawText(TextFormat("INPUT:%s",inputword),50,750,40,RED);
 
+ if (isPaused)
+    { 
+        // Dim the background
+        DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 180 });
 
+        // Draw your neon pause menu using your upgraded button function!
+        DrawButton("GAME PAUSED", screenwidth / 2, screenheight / 2 - 50, 30, 20, 10);
+        DrawButton("PRESS [ESC] TO RESUME", screenwidth / 2, screenheight / 2 + 20, 20, 15, 8);
+    }
         //DrawButton("Press [ESC] for menu",screenwidth/2,750,40,20,8);
         break;
             }
             case GAMEOVER:
             {
+                 DrawTexturePro(
+                mainmenu,
+                (Rectangle){ 0, 0, (float)mainmenu.width, (float)mainmenu.height },
+                (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
+                (Vector2){ 0, 0 }, 0.0f, WHITE
+            );
+             DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 90 });
+
                 if(complete_target)
                 {
-                    DrawText("LEVEL COMPLETED",screenwidth/2-200,screenheight/2-100,45,RED);
-DrawText(TextFormat("SCORE: %d",score),screenwidth/2-100,screenheight/2-20,40,RED);
- DrawText("PRESS [ESCAPE] TO RETURN",screenwidth/2-240,screenheight/2+60,30,RED);
+                
+     DrawButton(TextFormat("CONGRATULATIONS %s !",playerName), screenwidth / 2, screenheight/2-120, 30, 20, 8);
+                      DrawButton("LEVEL COMPLETED", screenwidth / 2, screenheight/2-50, 30, 20, 8);
+ DrawButton("PRESS [ESCAPE] TO RETURN",screenwidth/2,screenheight/2+20,30,20,8);
 
                 }
                 else
                 {
-                    DrawText("GAME OVER",screenwidth/2-150,screenheight/2-100,50,RED);
-DrawText(TextFormat("SCORE: %d",score),screenwidth/2-100,screenheight/2-20,40,RED);
-DrawText("PRESS [ESCAPE] TO RETURN",screenwidth/2-220,screenheight/2+60,30,RED);
+                    DrawButton("GAME OVER",screenwidth/2,screenheight/2-100,45,20,8);
+DrawButton(TextFormat("SCORE: %d",score),screenwidth/2,screenheight/2-20,45,20,8);
+DrawButton("PRESS [ESCAPE] TO RETURN",screenwidth/2,screenheight/2+60,30,20,8);
 
                 }
              break;  
@@ -1429,7 +1470,7 @@ DrawText("PRESS [ESCAPE] TO RETURN",screenwidth/2-220,screenheight/2+60,30,RED);
         {
             DrawTexturePro(
                 records,
-                (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
+                (Rectangle){ 0, 0, (float)records.width, (float)records.height },
                 (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
                 (Vector2){ 0, 0 }, 0.0f, WHITE
             );
@@ -1509,7 +1550,9 @@ DrawText("PRESS [ESCAPE] TO RETURN",screenwidth/2-220,screenheight/2+60,30,RED);
 
     }
     UnloadTexture(easy);
-     UnloadTexture(ninjaLogo);
+     UnloadTexture(ninjaLogo2);
+     UnloadTexture(mainmenu);
+    
     StopMusicStream(backgroundMusic); 
     UnloadMusicStream(backgroundMusic);
     UnloadSound(slicesound);
