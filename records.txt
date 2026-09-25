@@ -1,5 +1,1 @@
-jhil 1 3
-t 1 3
-tultul 0 1
-Adrika 0 2
-Joyeeta 0 3
+jhil 1 0

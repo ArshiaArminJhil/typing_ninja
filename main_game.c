@@ -121,6 +121,7 @@ int target=0;
 bool GAME_OVER=false;
 bool complete_target=false;
 bool ismuted=false;
+bool isPaused = false;
 float spawntime=0.0f;
 float spawninterval=1.0f;
 int maxlevelunlocked[3] = {1, 1, 1};
@@ -840,7 +841,7 @@ void DrawNinjaHoldingScroll(const char *wordText, int centerX, int y, int fontSi
 
 //Jhil's code
 //this is a funtion for drawing rectangle behind every text
-void DrawButton(const char *text, int centerX, int y,int fontSize, int paddingX, int paddingY)
+/*void DrawButton(const char *text, int centerX, int y,int fontSize, int paddingX, int paddingY)
 {
     int textWidth = MeasureText(text, fontSize);
 
@@ -852,6 +853,35 @@ void DrawButton(const char *text, int centerX, int y,int fontSize, int paddingX,
     DrawRectangleRounded((Rectangle){ rectX, y, rectWidth, rectHeight },0.2f,10, WHITE );
     DrawText( text,centerX - textWidth / 2,y + paddingY,fontSize,BLACK);
 }
+    */
+void DrawButton(const char *text, int posX, int posY, int fontSize, int paddingX, int paddingY)
+{
+    int textWidth = MeasureText(text, fontSize);
+    
+    // Calculate box dimensions using your padding style
+    int boxX = posX - textWidth / 2 - paddingX;
+    int boxY = posY - paddingY;
+    int boxWidth = textWidth + (paddingX * 2);
+    int boxHeight = fontSize + (paddingY * 2);
+
+    // Pick your neon theme color (Electric Cyan)
+    Color neonColor = (Color){ 0, 230, 255, 255 }; 
+
+    // 1. Outer Glow Layers (Larger rectangles with low alpha transparency)
+    DrawRectangleRounded((Rectangle){boxX - 6, boxY - 6, boxWidth + 12, boxHeight + 12}, 0.4f, 4, (Color){neonColor.r, neonColor.g, neonColor.b, 35});
+    DrawRectangleRounded((Rectangle){boxX - 3, boxY - 3, boxWidth + 6, boxHeight + 6}, 0.4f, 4, (Color){neonColor.r, neonColor.g, neonColor.b, 70});
+
+    // 2. Button Body (Dark semi-transparent inner core with a crisp glowing border)
+    DrawRectangleRounded((Rectangle){boxX, boxY, boxWidth, boxHeight}, 0.4f, 4, (Color){10, 12, 20, 220});
+    
+    // Corrected: Removed the thickness argument (2.0f) so it fits Raylib's 4-parameter function signature
+    DrawRectangleRoundedLines((Rectangle){boxX, boxY, boxWidth, boxHeight}, 0.4f, 4, neonColor);
+
+    // 3. Crisp text drawn centered on top
+    DrawText(text, posX - textWidth / 2, posY, fontSize, WHITE);
+}
+
+
 int main()
 {
 InitWindow(screenwidth, screenheight, "Typing Ninja");
@@ -1042,6 +1072,12 @@ break;
     
    case GAMEPLAY:
 {
+    if (IsKeyPressed(KEY_ESCAPE))
+    {
+        isPaused = !isPaused;
+    }
+    if (!isPaused)
+{
     updatefallingword(deltatime);
     handleplayertyping();
     
@@ -1084,6 +1120,7 @@ break;
         currentScreen = GAMEOVER;
         break;
     }
+}
     break;
 }
 
@@ -1253,7 +1290,16 @@ case NAME_ENTRY:
                 DrawButton(TextFormat("SCORE: %d",score),80,20,20,10,6);
     DrawButton(TextFormat("TIME: %.1f s",timer),80,60,20,10,6);
     DrawButton(TextFormat("TARGET: %d",target),80,100,20,10,6);
+    DrawText("PRESS [ESC] TO PAUSE", screenwidth / 2 - MeasureText("PRESS [ESC] TO PAUSE", 20) / 2, screenheight - 40, 20, DARKGRAY);
+    if (isPaused)
+    { 
+        // Dim the background
+        DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 180 });
 
+        // Draw your neon pause menu using your upgraded button function!
+        DrawButton("GAME PAUSED", screenwidth / 2, screenheight / 2 - 50, 30, 20, 10);
+        DrawButton("PRESS [ESC] TO RESUME", screenwidth / 2, screenheight / 2 + 20, 20, 15, 8);
+    }
         for(int i=0;i<MAX_WORD_ONSCREEN;i++)
         {
             if(screenword[i].active)
