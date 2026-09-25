@@ -1148,7 +1148,7 @@ case GAMEOVER:
         {//Logo bg for title screen
             DrawTexturePro(
                 ninjaLogo2,
-        (Rectangle){ 0, 0, (float)ninjaLogo.width, (float)ninjaLogo.height },
+        (Rectangle){ 0, 0, (float)ninjaLogo2.width, (float)ninjaLogo2.height },
          (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
         (Vector2){ 0, 0 },0.0f,WHITE
         );
