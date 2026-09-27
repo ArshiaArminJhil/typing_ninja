@@ -2,3 +2,6 @@ tultul 2 1
 jhil 0 2
 t 0 2
 j 0 2
+lamia 0 1
+Takee 1 3
+nusaba 0 2

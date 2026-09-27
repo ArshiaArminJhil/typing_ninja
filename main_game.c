@@ -12,9 +12,6 @@
 #define MAX_WORD_ONSCREEN 8
 #define bottom_line_y 582
 
-
-
-
 typedef enum{
 TITLE = 0,
 MAIN_MENU, 
@@ -409,7 +406,7 @@ void spawnword(int index)
     screenword[index].position.x=GetRandomValue(200,screenwidth-200);
     screenword[index].position.y=GetRandomValue(-150,-40);
     screenword[index].speed=speed;
-    screenword[index].active=true;
+    screenword[index].active=true;   
     screenword[index].lefthalf[0]='\0';
     screenword[index].righthalf[0]='\0';
     poweruponspawn(index);
@@ -473,12 +470,6 @@ int fontSize = 22;
     }
     
 }
-
-
-
-
-
-
 
 void updatefallingword(float dt)
 {
@@ -704,7 +695,7 @@ void levelsetting(Difficultymode diff, int level)
             canusewarp=true;
             canusewipe=true;
             //change
-            if(level == 1)      { timer = 60.0f; target = 05; }
+            if(level == 1)      { timer = 60.0f; target = 100; }
             else if(level == 2) { timer = 50.0f; target = 150; }
             else                { timer = 40.0f; target = 200; }
             loadword("wordeasy.txt");
@@ -1167,7 +1158,7 @@ break;
 
 case GAMEOVER:
     {
-        if (key == KEY_ENTER || key == KEY_ESCAPE)
+        if (key == KEY_ESCAPE)
         {
             currentScreen = LEVEL_SELECT;
         }
@@ -1558,17 +1549,14 @@ DrawButton("PRESS [ESCAPE] TO RETURN",screenwidth/2,screenheight/2+60,30,20,8);
 
     }
     UnloadTexture(easy);
-     UnloadTexture(ninjaLogo2);
-     UnloadTexture(mainmenu);
-    
+    UnloadTexture(ninjaLogo2);
+    UnloadTexture(mainmenu);
     StopMusicStream(backgroundMusic); 
     UnloadMusicStream(backgroundMusic);
     UnloadSound(slicesound);
     UnloadSound(keySound);
     CloseAudioDevice();
-
     CloseWindow();   
-
-    return 0;
-
+    return 0;  
+    
     }
