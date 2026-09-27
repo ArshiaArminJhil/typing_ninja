@@ -16,7 +16,7 @@ typedef enum{
 TITLE = 0,
 MAIN_MENU, 
  NAME_ENTRY,
- DIFFICULTY,     
+ DIFFICULTY, 
 LEVEL_SELECT,
 LEVEL_READY,
 GAMEPLAY,
@@ -708,7 +708,7 @@ if(IsKeyPressed(KEY_ENTER))
                     }
                    // screenword[i].active=false;
                    screenword[i].issliced=true;
-                    score+=10;
+                    score+=10*scoremultiplier;
                     PlaySound(slicesound);
                     int wordwidth=MeasureText(screenword[i].text,22);
                     int wordheight=22;
@@ -978,6 +978,7 @@ Texture2D ninjaLogo2 =LoadTexture("ninjalogo2.png");
 Texture2D easy = LoadTexture("coverphoto_easy.png");
 Texture2D records =LoadTexture("coverphoto_hard.png");
 Texture2D mainmenu =LoadTexture("coverphoto_medium.png");
+
 //if(easy.id<=0)
 //{
 //TraceLog(LOG_WARNING,"EMAGE FAILED TO LOAD");
@@ -1728,12 +1729,12 @@ case RECORDS:
     UnloadTexture(easy);
     UnloadTexture(ninjaLogo2);
     UnloadTexture(mainmenu);
-    StopMusicStream(backgroundMusic); 
+    StopMusicStream(backgroundMusic);
     UnloadMusicStream(backgroundMusic);
     UnloadSound(slicesound);
     UnloadSound(keySound);
     CloseAudioDevice();
-    CloseWindow();   
+    CloseWindow(); 
     return 0;  
     
     }
