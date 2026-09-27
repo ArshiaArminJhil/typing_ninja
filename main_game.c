@@ -12,9 +12,6 @@
 #define MAX_WORD_ONSCREEN 8
 #define bottom_line_y 582
 
-
-
-
 typedef enum{
 TITLE = 0,
 MAIN_MENU, 
@@ -51,10 +48,17 @@ typedef enum
     powerup_shrink,
 }poweruptype;
 //new
-typedef struct {
+/*typedef struct {
     char name[30];
     int difficultyUnlocked; 
     int highestLevel;       
+} PlayerRecord;*/
+ typedef struct {
+    char name[30];
+    int difficultyUnlocked;
+    int easyLevel;
+    int mediumLevel;
+    int hardLevel;
 } PlayerRecord;
 
 const char* GetNinjaRank(int diff, int level) {
@@ -134,78 +138,6 @@ char word[MAX_LINE][MAX_LEN];
 char inputword[100];
 int wordlength=0;
 
-//new
-void SaveRecord() {
-    PlayerRecord records[50];
-    int totalRecords = 0;
-    bool found = false;
-
-    FILE *f = fopen("records.txt", "r");
-    if (f != NULL) {
-        char filePlayer[30];
-        int fileDiff, fileLevel;
-        while (totalRecords < 50 && fscanf(f, "%29s %d %d", filePlayer, &fileDiff, &fileLevel) == 3) {
-            if (strcmp(filePlayer, playerName) == 0) {
-                strcpy(records[totalRecords].name, playerName);
-                records[totalRecords].difficultyUnlocked = (maxdifficultyunlocked > fileDiff) ? maxdifficultyunlocked : fileDiff;
-              int currentMaxLvl = maxlevelunlocked[fileDiff]; 
-        records[totalRecords].highestLevel = (currentMaxLvl > fileLevel) ? currentMaxLvl : fileLevel;
-                found = true;
-            } else {
-                strcpy(records[totalRecords].name, filePlayer);
-                records[totalRecords].difficultyUnlocked = fileDiff;
-                records[totalRecords].highestLevel = fileLevel;
-            }
-            totalRecords++;
-        }
-        fclose(f);
-    }
-
-    if (!found && strlen(playerName) > 0) {
-        strcpy(records[totalRecords].name, playerName);
-        records[totalRecords].difficultyUnlocked = maxdifficultyunlocked;
-        records[totalRecords].highestLevel = maxlevelunlocked[maxdifficultyunlocked];
-        totalRecords++;
-    }
-
-    f = fopen("records.txt", "w");
-    if (f != NULL) {
-        for (int i = 0; i < totalRecords; i++) {
-            fprintf(f, "%s %d %d\n", records[i].name, records[i].difficultyUnlocked, records[i].highestLevel);
-        }
-        fclose(f);
-    }
-}
-void LoadPlayerProgress() {
-    FILE *f = fopen("records.txt", "r");
-    bool found = false;
-    
-    if (f != NULL) {
-        char filePlayer[30];
-        int fileDiff, fileLevel;
-        
-        while (fscanf(f, "%29s %d %d", filePlayer, &fileDiff, &fileLevel) == 3) {
-            if (strcmp(filePlayer, playerName) == 0) {
-                maxdifficultyunlocked = fileDiff;
-                selecteddiff = fileDiff;
-                maxlevelunlocked[fileDiff] = fileLevel; 
-                selectedlevel = 1;
-                found = true;
-                break;
-            }
-        }
-        fclose(f);
-    }
-    
-    if (!found) {
-        maxdifficultyunlocked = DIFF_EASY;
-        selecteddiff = DIFF_EASY;
-        selectedlevel = 1;
-        maxlevelunlocked[0] = 1;
-        maxlevelunlocked[1] = 1;
-        maxlevelunlocked[2] = 1;
-    }
-}
 
 int loadword(char* filename)
 {
@@ -233,6 +165,131 @@ return totalword;
 }
 
 
+void SaveRecord()
+{
+    PlayerRecord records[50];
+    int totalRecords = 0;
+    bool found = false;
+
+    FILE *f = fopen("records.txt", "r");
+
+    if (f != NULL)
+    {
+        while (totalRecords < 50 &&
+               fscanf(f, "%29s %d %d %d %d",
+                      records[totalRecords].name,
+                      &records[totalRecords].difficultyUnlocked,
+                      &records[totalRecords].easyLevel,
+                      &records[totalRecords].mediumLevel,
+                      &records[totalRecords].hardLevel) == 5)
+        {
+            if (strcmp(records[totalRecords].name, playerName) == 0)
+            {
+                // Update this player's progress
+                if (maxdifficultyunlocked > records[totalRecords].difficultyUnlocked)
+                    records[totalRecords].difficultyUnlocked = maxdifficultyunlocked;
+
+                if (maxlevelunlocked[DIFF_EASY] > records[totalRecords].easyLevel)
+                    records[totalRecords].easyLevel = maxlevelunlocked[DIFF_EASY];
+
+                if (maxlevelunlocked[DIFF_MEDIUM] > records[totalRecords].mediumLevel)
+                    records[totalRecords].mediumLevel = maxlevelunlocked[DIFF_MEDIUM];
+
+                if (maxlevelunlocked[DIFF_HARD] > records[totalRecords].hardLevel)
+                    records[totalRecords].hardLevel = maxlevelunlocked[DIFF_HARD];
+
+                found = true;
+            }
+
+            totalRecords++;
+        }
+
+        fclose(f);
+    }
+
+    // New player
+    if (!found && strlen(playerName) > 0)
+    {
+        strcpy(records[totalRecords].name, playerName);
+
+        records[totalRecords].difficultyUnlocked = maxdifficultyunlocked;
+
+        records[totalRecords].easyLevel = maxlevelunlocked[DIFF_EASY];
+        records[totalRecords].mediumLevel = maxlevelunlocked[DIFF_MEDIUM];
+        records[totalRecords].hardLevel = maxlevelunlocked[DIFF_HARD];
+
+        totalRecords++;
+    }
+
+    // Save everything
+    f = fopen("records.txt", "w");
+
+    if (f != NULL)
+    {
+        for (int i = 0; i < totalRecords; i++)
+        {
+            fprintf(f, "%s %d %d %d %d\n",
+                    records[i].name,
+                    records[i].difficultyUnlocked,
+                    records[i].easyLevel,
+                    records[i].mediumLevel,
+                    records[i].hardLevel);
+        }
+
+        fclose(f);
+    }
+}
+
+void LoadPlayerProgress()
+{
+    FILE *f = fopen("records.txt", "r");
+    bool found = false;
+
+    // Always reset progress first
+    maxdifficultyunlocked = DIFF_EASY;
+
+    maxlevelunlocked[DIFF_EASY] = 1;
+    maxlevelunlocked[DIFF_MEDIUM] = 1;
+    maxlevelunlocked[DIFF_HARD] = 1;
+
+    selecteddiff = DIFF_EASY;
+    selectedlevel = 1;
+
+    if (f != NULL)
+    {
+        char filePlayer[30];
+
+        int fileDiff;
+        int easyLevel;
+        int mediumLevel;
+        int hardLevel;
+
+        while (fscanf(f, "%29s %d %d %d %d",
+                      filePlayer,
+                      &fileDiff,
+                      &easyLevel,
+                      &mediumLevel,
+                      &hardLevel) == 5)
+        {
+            if (strcmp(filePlayer, playerName) == 0)
+            {
+                maxdifficultyunlocked = fileDiff;
+
+                maxlevelunlocked[DIFF_EASY] = easyLevel;
+                maxlevelunlocked[DIFF_MEDIUM] = mediumLevel;
+                maxlevelunlocked[DIFF_HARD] = hardLevel;
+
+                selecteddiff = DIFF_EASY;
+                selectedlevel = 1;
+
+                found = true;
+                break;
+            }
+        }
+
+        fclose(f);
+    }
+}
 
 
 
@@ -414,7 +471,7 @@ void spawnword(int index)
     screenword[index].position.x=GetRandomValue(200,screenwidth-200);
     screenword[index].position.y=GetRandomValue(-150,-40);
     screenword[index].speed=speed;
-    screenword[index].active=true;
+    screenword[index].active=true;   
     screenword[index].lefthalf[0]='\0';
     screenword[index].righthalf[0]='\0';
     poweruponspawn(index);
@@ -478,12 +535,6 @@ int fontSize = 22;
     }
     
 }
-
-
-
-
-
-
 
 void updatefallingword(float dt)
 {
@@ -719,18 +770,18 @@ void levelsetting(Difficultymode diff, int level)
         case DIFF_MEDIUM:
         {
             speed = 110.0f;
-            if(level == 1)      { timer = 60.0f; target = 150; }
-            else if(level == 2) { timer = 50.0f; target = 200; }
-            else                { timer = 40.0f; target = 250; }
+            if(level == 1)      { timer = 60.0f; target = 100; }
+            else if(level == 2) { timer = 50.0f; target = 150; }
+            else                { timer = 40.0f; target = 200; }
             loadword("wordmedium.txt");
             break;
         }
         case DIFF_HARD:
         {
             speed = 150.0f;
-            if(level == 1)      { timer = 60.0f; target = 200; }
-            else if(level == 2) { timer = 50.0f; target = 300; }
-            else                { timer = 40.0f; target = 400; }
+            if(level == 1)      { timer = 60.0f; target = 150; }
+            else if(level == 2) { timer = 50.0f; target = 5; }
+            else                { timer = 40.0f; target = 5; }
             loadword("wordhard.txt");
             break;
         }
@@ -1173,7 +1224,7 @@ break;
 
 case GAMEOVER:
     {
-        if (key == KEY_ENTER || key == KEY_ESCAPE)
+        if (key == KEY_ESCAPE)
         {
             currentScreen = LEVEL_SELECT;
         }
@@ -1479,84 +1530,195 @@ DrawButton("PRESS [ESCAPE] TO RETURN",screenwidth/2,screenheight/2+60,30,20,8);
              break;  
             }
 
-            //new
-           case RECORDS:
+
+case RECORDS:
+{
+    DrawTexturePro(
+        records,
+        (Rectangle){ 0, 0, (float)records.width, (float)records.height },
+        (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
+        (Vector2){ 0, 0 }, 0.0f, WHITE
+    );
+
+    DrawRectangle(0, 0, screenwidth, screenheight,
+                  (Color){ 0, 0, 0, 150 });
+
+    // Title & Table Headers matching your sketch layout
+    DrawButton("NINJA LEADERBOARD",
+               screenwidth / 2, 70, 30, 25, 10);
+
+    DrawText("NAME", 130, 140, 18, LIGHTGRAY);
+    DrawText("RANK", 310, 140, 18, LIGHTGRAY);
+    DrawText("DIFFICULTY", 500, 140, 18, LIGHTGRAY);
+    DrawText("LEVEL", 720, 140, 18, LIGHTGRAY);
+    DrawLine(110, 170, 890, 170, LIGHTGRAY);
+
+    PlayerRecord tableRecords[50];
+    int totalRecords = 0;
+
+    // Read records from file
+    FILE *f = fopen("records.txt", "r");
+
+    if (f != NULL)
+    {
+        while (totalRecords < 50 &&
+               fscanf(f, "%29s %d %d %d %d",
+                      tableRecords[totalRecords].name,
+                      &tableRecords[totalRecords].difficultyUnlocked,
+                      &tableRecords[totalRecords].easyLevel,
+                      &tableRecords[totalRecords].mediumLevel,
+                      &tableRecords[totalRecords].hardLevel) == 5)
         {
-            DrawTexturePro(
-                records,
-                (Rectangle){ 0, 0, (float)records.width, (float)records.height },
-                (Rectangle){ 0, 0, (float)screenwidth, (float)screenheight },
-                (Vector2){ 0, 0 }, 0.0f, WHITE
-            );
-            DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 150 });
-
-            // Title & Table Headers matching your sketch layout
-            DrawButton("NINJA LEADERBOARD", screenwidth / 2, 70, 30, 25, 10);
-            
-            DrawText("NAME", 130, 140, 18, LIGHTGRAY);
-            DrawText("RANK", 310, 140, 18, LIGHTGRAY);
-            DrawText("DIFFICULTY", 500, 140, 18, LIGHTGRAY);
-            DrawText("LEVEL", 720, 140, 18, LIGHTGRAY);
-            DrawLine(110, 170, 890, 170, LIGHTGRAY);
-
-            PlayerRecord tableRecords[50];
-            int totalRecords = 0;
-
-            // Read records from file
-            FILE *f = fopen("records.txt", "r");
-            if (f != NULL) {
-                while (totalRecords < 50 && fscanf(f, "%29s %d %d", tableRecords[totalRecords].name, &tableRecords[totalRecords].difficultyUnlocked, &tableRecords[totalRecords].highestLevel) == 3) {
-                    totalRecords++;
-                }
-                fclose(f);
-            }
-
-        
-            for (int i = 0; i < totalRecords - 1; i++) {
-                for (int j = 0; j < totalRecords - i - 1; j++) {
-                    int scoreA = (tableRecords[j].difficultyUnlocked * 3) + tableRecords[j].highestLevel;
-                    int scoreB = (tableRecords[j + 1].difficultyUnlocked * 3) + tableRecords[j + 1].highestLevel;
-                    if (scoreA < scoreB) {
-                        PlayerRecord temp = tableRecords[j];
-                        tableRecords[j] = tableRecords[j + 1];
-                        tableRecords[j + 1] = temp;
-                    }
-                }
-            }
-
-    
-            int yOffset = 190;
-            for (int i = 0; i < totalRecords && i < 10; i++) {
-                const char* rankStr = GetNinjaRank(tableRecords[i].difficultyUnlocked, tableRecords[i].highestLevel);
-                
-                const char* diffStr = "EASY";
-         if (tableRecords[i].difficultyUnlocked == DIFF_MEDIUM) diffStr = "MEDIUM";
-                if (tableRecords[i].difficultyUnlocked == DIFF_HARD) diffStr = "HARD";
-
-                char lvlStr[10];
-                sprintf(lvlStr, "%d", tableRecords[i].highestLevel-1);
-
-            
-                DrawText(tableRecords[i].name, 130, yOffset, 20, WHITE);
-                DrawText(rankStr, 310, yOffset, 20, YELLOW);
-                DrawText(diffStr, 500, yOffset, 20, WHITE);
-                DrawText(lvlStr, 720, yOffset, 20, WHITE);
-
-                yOffset += 40;
-            }
-
-            if (totalRecords == 0) {
-                DrawText("No records found yet. Play a game!", screenwidth / 2 - MeasureText("No records found yet. Play a game!", 20) / 2, 300, 20, LIGHTGRAY);
-            }
-
-            DrawButton("BACKSPACE : Go Back", screenwidth / 2, 630, 18, 20, 8);
-
-            if (key == KEY_BACKSPACE || key == KEY_ESCAPE)
-            {
-                currentScreen = MAIN_MENU;
-            }
-            break;
+            totalRecords++;
         }
+
+        fclose(f);
+    }
+
+    // Sort leaderboard
+    for (int i = 0; i < totalRecords - 1; i++)
+    {
+        for (int j = 0; j < totalRecords - i - 1; j++)
+        {
+            int levelA;
+            int levelB;
+
+            // Get the highest level for each player's
+            // highest unlocked difficulty
+            if (tableRecords[j].difficultyUnlocked == DIFF_EASY)
+                levelA = tableRecords[j].easyLevel;
+            else if (tableRecords[j].difficultyUnlocked == DIFF_MEDIUM)
+                levelA = tableRecords[j].mediumLevel;
+            else
+                levelA = tableRecords[j].hardLevel;
+
+            if (tableRecords[j + 1].difficultyUnlocked == DIFF_EASY)
+                levelB = tableRecords[j + 1].easyLevel;
+            else if (tableRecords[j + 1].difficultyUnlocked == DIFF_MEDIUM)
+                levelB = tableRecords[j + 1].mediumLevel;
+            else
+                levelB = tableRecords[j + 1].hardLevel;
+
+            int scoreA =
+                (tableRecords[j].difficultyUnlocked * 3) + levelA;
+
+            int scoreB =
+                (tableRecords[j + 1].difficultyUnlocked * 3) + levelB;
+
+            if (scoreA < scoreB)
+            {
+                PlayerRecord temp = tableRecords[j];
+
+                tableRecords[j] = tableRecords[j + 1];
+                tableRecords[j + 1] = temp;
+            }
+        }
+    }
+
+    int yOffset = 190;
+
+    for (int i = 0; i < totalRecords && i < 10; i++)
+    {
+        int displayLevel;
+
+        // Select the level belonging to the player's
+        // highest unlocked difficulty
+        if (tableRecords[i].difficultyUnlocked == DIFF_EASY)
+        {
+            displayLevel = tableRecords[i].easyLevel;
+        }
+        else if (tableRecords[i].difficultyUnlocked == DIFF_MEDIUM)
+        {
+            displayLevel = tableRecords[i].mediumLevel;
+        }
+        else
+        {
+            displayLevel = tableRecords[i].hardLevel;
+        }
+
+        const char* rankStr =
+            GetNinjaRank(
+                tableRecords[i].difficultyUnlocked,
+                displayLevel
+            );
+
+        const char* diffStr = "EASY";
+
+        if (tableRecords[i].difficultyUnlocked == DIFF_MEDIUM)
+            diffStr = "MEDIUM";
+
+        if (tableRecords[i].difficultyUnlocked == DIFF_HARD)
+            diffStr = "HARD";
+
+        char lvlStr[10];
+
+        sprintf(lvlStr, "%d", displayLevel - 1);
+
+        DrawText(
+            tableRecords[i].name,
+            130,
+            yOffset,
+            20,
+            WHITE
+        );
+
+        DrawText(
+            rankStr,
+            310,
+            yOffset,
+            20,
+            YELLOW
+        );
+
+        DrawText(
+            diffStr,
+            500,
+            yOffset,
+            20,
+            WHITE
+        );
+
+        DrawText(
+            lvlStr,
+            720,
+            yOffset,
+            20,
+            WHITE
+        );
+
+        yOffset += 40;
+    }
+
+    if (totalRecords == 0)
+    {
+        DrawText(
+            "No records found yet. Play a game!",
+            screenwidth / 2 -
+                MeasureText("No records found yet. Play a game!", 20) / 2,
+            300,
+            20,
+            LIGHTGRAY
+        );
+    }
+
+    DrawButton(
+        "BACKSPACE : Go Back",
+        screenwidth / 2,
+        630,
+        18,
+        20,
+        8
+    );
+
+    if (key == KEY_BACKSPACE || key == KEY_ESCAPE)
+    {
+        currentScreen = MAIN_MENU;
+    }
+
+    break;
+}
+
+
         }
         
     
@@ -1564,17 +1726,14 @@ DrawButton("PRESS [ESCAPE] TO RETURN",screenwidth/2,screenheight/2+60,30,20,8);
 
     }
     UnloadTexture(easy);
-     UnloadTexture(ninjaLogo2);
-     UnloadTexture(mainmenu);
-    
+    UnloadTexture(ninjaLogo2);
+    UnloadTexture(mainmenu);
     StopMusicStream(backgroundMusic); 
     UnloadMusicStream(backgroundMusic);
     UnloadSound(slicesound);
     UnloadSound(keySound);
     CloseAudioDevice();
-
     CloseWindow();   
-
-    return 0;
-
+    return 0;  
+    
     }
