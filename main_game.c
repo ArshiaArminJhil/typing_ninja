@@ -17,6 +17,7 @@ TITLE = 0,
 MAIN_MENU, 
  NAME_ENTRY,
  DIFFICULTY, 
+ EASY_INSTRUCTIONS,
 LEVEL_SELECT,
 LEVEL_READY,
 GAMEPLAY,
@@ -978,7 +979,7 @@ Texture2D ninjaLogo2 =LoadTexture("ninjalogo2.png");
 Texture2D easy = LoadTexture("coverphoto_easy.png");
 Texture2D records =LoadTexture("coverphoto_hard.png");
 Texture2D mainmenu =LoadTexture("coverphoto_medium.png");
-
+Texture2D easyins=LoadTexture("easy_ins.png");
 //if(easy.id<=0)
 //{
 //TraceLog(LOG_WARNING,"EMAGE FAILED TO LOAD");
@@ -1104,7 +1105,7 @@ case NAME_ENTRY:
     if (key == KEY_E)
     {
         selecteddiff=DIFF_EASY;
-    currentScreen = LEVEL_SELECT;
+    currentScreen = EASY_INSTRUCTIONS;
     }
     else if (key == KEY_M)
     {if(maxdifficultyunlocked>=DIFF_MEDIUM)
@@ -1129,6 +1130,20 @@ case NAME_ENTRY:
     }
     break;
     }
+
+  case EASY_INSTRUCTIONS:
+  {
+    if(key==KEY_ENTER)
+    {
+        currentScreen=LEVEL_SELECT;
+    }
+    else if(key==KEY_BACKSPACE)
+    {
+        currentScreen=DIFFICULTY;
+    }
+    break;
+  }
+
     case LEVEL_SELECT:
 {
     if (key == KEY_ONE)
@@ -1328,6 +1343,29 @@ case NAME_ENTRY:
 
         break;
             }
+
+case EASY_INSTRUCTIONS:
+{
+    DrawTexturePro(
+        easyins,
+        (Rectangle){
+            0, 0,
+            (float)easyins.width,
+            (float)easyins.height
+        },
+        (Rectangle){
+            0, 0,
+            (float)screenwidth,
+            (float)screenheight
+        },
+        (Vector2){ 0, 0 },
+        0.0f,
+        WHITE
+    );
+
+    break;
+}
+
 
         case LEVEL_SELECT:
         
@@ -1729,6 +1767,7 @@ case RECORDS:
     UnloadTexture(easy);
     UnloadTexture(ninjaLogo2);
     UnloadTexture(mainmenu);
+    UnloadTexture(easyins);
     StopMusicStream(backgroundMusic);
     UnloadMusicStream(backgroundMusic);
     UnloadSound(slicesound);
