@@ -217,10 +217,15 @@ return 0;
     }
     else
     {
+        totalword=0;
         
 while(fscanf(f,"%29s",word[totalword])==1)
 {
     totalword++;
+    if(totalword>=MAX_LINE)
+    {
+        break;
+    }
 }
     }
     fclose(f);
@@ -298,7 +303,7 @@ void activatepowerup(poweruptype type)
         {
             speedmodifier=2.0f;
             scoremultiplier=2;
-            poweruptimer=10.0f;
+            poweruptimer=5.0f;
             activeglobalpowerup=powerup_hyper_speed;
             break;
         }
@@ -596,7 +601,7 @@ bool activewordleft=false;
                 }
                 else
                 {
-                     score-=5;
+                     score-=1;
 
                 }
                 screenword[i].active=false;
@@ -704,7 +709,7 @@ void levelsetting(Difficultymode diff, int level)
             canusewarp=true;
             canusewipe=true;
             //change
-            if(level == 1)      { timer = 60.0f; target = 05; }
+            if(level == 1)      { timer = 60.0f; target = 100; }
             else if(level == 2) { timer = 50.0f; target = 150; }
             else                { timer = 40.0f; target = 200; }
             loadword("wordeasy.txt");
@@ -722,7 +727,7 @@ void levelsetting(Difficultymode diff, int level)
         }
         case DIFF_HARD:
         {
-            speed = 200.0f;
+            speed = 150.0f;
             if(level == 1)      { timer = 60.0f; target = 200; }
             else if(level == 2) { timer = 50.0f; target = 300; }
             else                { timer = 40.0f; target = 400; }
@@ -998,6 +1003,7 @@ GameScreen currentScreen = TITLE;
     {
     currentScreen = TITLE;
     break;}
+    break;
     }
     
     //new
