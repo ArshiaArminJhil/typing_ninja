@@ -1504,7 +1504,7 @@ if (screenword[i].slashtimer>0.0f)
                             case powerup_rush:scrollparchmentcolor=(Color){242,222,179,255};break;
                             case powerup_shock:scrollparchmentcolor=PURPLE;break;
                             case powerup_shrink:scrollparchmentcolor=GREEN;break;
-                            case powerup_ink:scrollparchmentcolor =ORANGE;break;
+                            case powerup_ink:scrollparchmentcolor =RED;break;
  
                         }
                     }
@@ -1551,7 +1551,7 @@ if (screenword[i].slashtimer>0.0f)
            // DrawText("powerup codes:",50,screenheight-50,20,DARKGRAY);
          // Define your specific neon colors
 DrawNeonButton("BLUE FREEZE", 100, 680, 150, 35, neonBlue);
-DrawNeonButton("RED RUSH", 320, 680, 150, 35, neonRed);
+DrawNeonButton("RED INKBLIND", 320, 680, 150, 35, neonRed);
 DrawNeonButton("PURPLE T-Warp", 520, 680, 150, 35, neonPurple);
 DrawNeonButton("GREEN SHRINK", 750, 680, 150, 35, neonGreen);
 
