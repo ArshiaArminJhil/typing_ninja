@@ -47,6 +47,7 @@ typedef enum
     powerup_rush,
     powerup_shock,
     powerup_shrink,
+    powerup_ink,
 }poweruptype;
 //new
 /*typedef struct {
@@ -54,6 +55,8 @@ typedef enum
     int difficultyUnlocked; 
     int highestLevel;       
 } PlayerRecord;*/
+
+
  typedef struct {
     char name[30];
     int difficultyUnlocked;
@@ -105,6 +108,8 @@ poweruptype activeglobalpowerup=powerup_none;
 float poweruptimer=0.0f;
 float speedmodifier=1.0f;
 int scoremultiplier=1;
+
+float inkblindnesstimer=0.0f;
 bool iswipingdown=false;
 
 bool canusebullet=false;
@@ -406,14 +411,15 @@ void activatepowerup(poweruptype type)
 
         case powerup_shock:
         {
-            for(int i=0;i<MAX_WORD_ONSCREEN;i++)
+            /*for(int i=0;i<MAX_WORD_ONSCREEN;i++)
             {
                 if(screenword[i].active&&screenword[i].position.y>screenheight*0.5f)
                 {
                     screenword[i].active=false;
 
                 }
-            }
+            }*/
+           timer+=5.0f;
             break;
         }
 
@@ -429,6 +435,17 @@ void activatepowerup(poweruptype type)
                     screenword[i].text[3]='\0';
                 }
             }
+            break;
+        }
+
+
+        case powerup_ink:
+        {
+            speedmodifier=1.0f;
+            scoremultiplier=3;
+            poweruptimer=10.0f;
+            inkblindnesstimer=10.0f;
+            activeglobalpowerup==powerup_ink;
             break;
         }
 
@@ -462,6 +479,11 @@ switch(typechoice)
         }
 
     }
+}
+
+if(selecteddiff==DIFF_HARD&& GetRandomValue(1,100)<=8)
+{
+    screenword[wordindex].powerupeffect=powerup_ink;
 }
 }
 
@@ -542,7 +564,14 @@ void updatefallingword(float dt)
    timer-=dt;
  spawntime+=dt;
 
-
+if(inkblindnesstimer>0.0f)
+{
+    inkblindnesstimer-=dt;
+}
+if(inkblindnesstimer<0.0f)
+{
+    inkblindnesstimer=0.0f;
+}
 
  if(activeglobalpowerup!=powerup_none)
  {
@@ -755,34 +784,34 @@ void levelsetting(Difficultymode diff, int level)
     {
         case DIFF_EASY:
         {
-            speed = 100.0f;
+            speed = 120.0f;
             canusebullet=true;
             canusehyper=true;
             canusewarp=true;
             canusewipe=true;
             //change
-            if(level == 1)      { timer = 60.0f; target = 100; }
-            else if(level == 2) { timer = 50.0f; target = 150; }
-            else                { timer = 40.0f; target = 200; }
+            if(level == 1)      { timer = 60.0f; target = 250; }
+            else if(level == 2) { timer = 50.0f; target = 300; }
+            else                { timer = 40.0f; target = 350; }
             loadword("wordeasy.txt");
             
             break;
         }
         case DIFF_MEDIUM:
         {
-            speed = 110.0f;
-            if(level == 1)      { timer = 60.0f; target = 100; }
-            else if(level == 2) { timer = 50.0f; target = 150; }
-            else                { timer = 40.0f; target = 200; }
+            speed = 125.0f;
+            if(level == 1)      { timer = 60.0f; target = 200; }
+            else if(level == 2) { timer = 50.0f; target = 250; }
+            else                { timer = 40.0f; target = 250; }
             loadword("wordmedium.txt");
             break;
         }
         case DIFF_HARD:
         {
-            speed = 150.0f;
-            if(level == 1)      { timer = 60.0f; target = 150; }
-            else if(level == 2) { timer = 50.0f; target = 5; }
-            else                { timer = 40.0f; target = 5; }
+            speed = 100.0f;
+            if(level == 1)      { timer = 60.0f; target = 250; }
+            else if(level == 2) { timer = 50.0f; target = 300; }
+            else                { timer = 40.0f; target = 400; }
             loadword("wordhard.txt");
             break;
         }
@@ -1285,7 +1314,7 @@ case GAMEOVER:
             DrawButton("[R] View Records", screenwidth / 2, 300, 35, 30, 10);
             
             DrawButton("[X] Exit", screenwidth / 2, 370, 25, 25, 8);
-            DrawButton("BACKSPACE : Go Back", screenwidth / 2, 450, 25, 25, 8);
+            //DrawButton("BACKSPACE : Go Back", screenwidth / 2, 450, 25, 25, 8);
             break;
         }
 
@@ -1472,9 +1501,11 @@ if (screenword[i].slashtimer>0.0f)
                         switch(screenword[i].powerupeffect)
                         {
                             case powerup_freeze:scrollparchmentcolor=BLUE;break;
-                            case powerup_rush:scrollparchmentcolor=RED;break;
+                            case powerup_rush:scrollparchmentcolor=(Color){242,222,179,255};break;
                             case powerup_shock:scrollparchmentcolor=PURPLE;break;
                             case powerup_shrink:scrollparchmentcolor=GREEN;break;
+                            case powerup_ink:scrollparchmentcolor =ORANGE;break;
+ 
                         }
                     }
              //DrawButton(screenword[i].text,screenword[i].position.x,screenword[i].position.y,20,15,9);
@@ -1521,24 +1552,49 @@ if (screenword[i].slashtimer>0.0f)
          // Define your specific neon colors
 DrawNeonButton("BLUE FREEZE", 100, 680, 150, 35, neonBlue);
 DrawNeonButton("RED RUSH", 320, 680, 150, 35, neonRed);
-DrawNeonButton("PURPLE SHOCK", 520, 680, 150, 35, neonPurple);
+DrawNeonButton("PURPLE T-Warp", 520, 680, 150, 35, neonPurple);
 DrawNeonButton("GREEN SHRINK", 750, 680, 150, 35, neonGreen);
 
           }
 
 
                      DrawText(TextFormat("INPUT:%s",inputword),50,750,40,RED);
+                     if (inkblindnesstimer > 0.0f) 
+{
+    
+    int centerX = screenwidth / 2;
+    int centerY = screenheight / 2;
+    
+    
+    unsigned char alpha = (unsigned char)(200 * (inkblindnesstimer / 4.0f)); 
+    if (alpha < 50) alpha = 50; 
+    
+    Color inkColor = (Color){ 15, 15, 20, alpha }; 
+    
+    
+    DrawCircle(centerX, centerY, 240, inkColor); 
+    
+    
+    DrawCircle(centerX - 120, centerY - 60, 130, inkColor);
+    DrawCircle(centerX + 140, centerY + 80, 110, inkColor);
+    DrawCircle(centerX - 80,  centerY + 140, 95, inkColor);
+    DrawCircle(centerX + 180, centerY - 100, 80, inkColor);
+    
+    
+    DrawText("INK BLINDNESS ACTIVE! (TRIPLE POINTS)", centerX - 230, centerY - 15, 24, (Color){ 200, 30, 30, alpha });
+}
 
  if (isPaused)
     { 
-        // Dim the background
+        
         DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 180 });
 
-        // Draw your neon pause menu using your upgraded button function!
+        
         DrawButton("GAME PAUSED", screenwidth / 2, screenheight / 2 - 50, 30, 20, 10);
         DrawButton("PRESS [ESC] TO RESUME", screenwidth / 2, screenheight / 2 + 20, 20, 15, 8);
     }
-        //DrawButton("Press [ESC] for menu",screenwidth/2,750,40,20,8);
+        
+
         break;
             }
             case GAMEOVER:
