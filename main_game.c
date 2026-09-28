@@ -18,10 +18,13 @@ MAIN_MENU,
  NAME_ENTRY,
  DIFFICULTY, 
  EASY_INSTRUCTIONS,
+ MEDIUM_INSTRUCTIONS,
+ HARD_INSTRUCTIONS,
 LEVEL_SELECT,
 LEVEL_READY,
 GAMEPLAY,
 GAMEOVER,
+ABOUT_GAME,
 RECORDS
 } GameScreen;
 
@@ -1008,8 +1011,8 @@ Texture2D ninjaLogo2 =LoadTexture("ninjalogo2.png");
 Texture2D easy = LoadTexture("coverphoto_easy.png");
 Texture2D records =LoadTexture("coverphoto_hard.png");
 Texture2D mainmenu =LoadTexture("coverphoto_medium.png");
-Texture2D easyins=LoadTexture("easy_ins.png");
-//if(easy.id<=0)
+Texture2D easyins=LoadTexture("instructions.png");
+//if(e asy.id<=0)
 //{
 //TraceLog(LOG_WARNING,"EMAGE FAILED TO LOAD");
 //}
@@ -1141,7 +1144,7 @@ case NAME_ENTRY:
         {
                     selecteddiff=DIFF_MEDIUM;
 
-     currentScreen = LEVEL_SELECT;
+     currentScreen = MEDIUM_INSTRUCTIONS;
         }
      }
      else if (key == KEY_H)
@@ -1150,7 +1153,7 @@ case NAME_ENTRY:
 
                 selecteddiff=DIFF_HARD;
 
-    currentScreen = LEVEL_SELECT;
+    currentScreen = HARD_INSTRUCTIONS;
      }
     }
     if (key == KEY_BACKSPACE)
@@ -1161,19 +1164,34 @@ case NAME_ENTRY:
     }
 
   case EASY_INSTRUCTIONS:
-  {
-    if(key==KEY_ENTER)
+{
+    if (key == KEY_ENTER)
     {
-        currentScreen=LEVEL_SELECT;
+        currentScreen = LEVEL_SELECT;
     }
-    else if(key==KEY_BACKSPACE)
+    else if (key == KEY_BACKSPACE)
     {
-        currentScreen=DIFFICULTY;
+        currentScreen = DIFFICULTY;
     }
-    break;
-  }
 
-    case LEVEL_SELECT:
+    break;
+}
+
+case MEDIUM_INSTRUCTIONS:
+{
+    if (key == KEY_ENTER)
+    {
+        currentScreen = LEVEL_SELECT;
+    }
+    else if (key == KEY_BACKSPACE)
+    {
+        currentScreen = DIFFICULTY;
+    }
+
+    break;
+}
+
+case LEVEL_SELECT:
 {
     if (key == KEY_ONE)
     {
@@ -1212,7 +1230,8 @@ case LEVEL_READY:
 }
 break;
 }
-    
+
+
    case GAMEPLAY:
 {
     if (IsKeyPressed(KEY_ESCAPE))
@@ -1223,6 +1242,33 @@ break;
 {
     updatefallingword(deltatime);
     handleplayertyping();
+
+
+
+
+    Rectangle quitButtonRec = { (float)screenwidth - 150, 20, 120, 40 };
+    
+    
+    if (CheckCollisionPointRec(GetMousePosition(), quitButtonRec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    {
+        
+        activeglobalpowerup = powerup_none;
+        poweruptimer = 0.0f;
+        speedmodifier = 1.0f;
+        scoremultiplier = 1;
+        inkblindnesstimer = 0.0f;
+        iswipingdown = false;
+
+        
+        for (int i = 0; i < MAX_WORD_ONSCREEN; i++) {
+            screenword[i].active = false;
+            screenword[i].issliced = false;
+        }
+
+        
+        currentScreen = LEVEL_SELECT;
+        break;
+    }
     
     if(timer <= 0.0f && score < target)
     {
@@ -1373,8 +1419,10 @@ case NAME_ENTRY:
         break;
             }
 
-case EASY_INSTRUCTIONS:
+
+        case EASY_INSTRUCTIONS:
 {
+    // Draw your first image as the background
     DrawTexturePro(
         easyins,
         (Rectangle){
@@ -1387,14 +1435,744 @@ case EASY_INSTRUCTIONS:
             (float)screenwidth,
             (float)screenheight
         },
-        (Vector2){ 0, 0 },
+        (Vector2){0, 0},
         0.0f,
+        WHITE
+    );
+
+    // =========================
+    // TITLE
+    // =========================
+    DrawText(
+        "HOW TO PLAY - EASY LEVEL",
+        300, 105,
+        30,
+        WHITE
+    );
+
+
+    // =========================
+    // GAMEPLAY
+    // =========================
+    DrawText("GAMEPLAY", 120, 205, 30, WHITE);
+
+    DrawText(
+        "Type the falling words",
+        120, 265,
+        22,
+        WHITE
+    );
+
+    DrawText(
+        "before they reach the bottom.",
+        120, 295,
+        22,
+        WHITE
+    );
+
+    DrawText(
+        "Correct word: +10 points",
+        120, 350,
+        22,
+        WHITE
+    );
+
+    DrawText(
+        "Missed word: -1 point",
+        120, 390,
+        22,
+        WHITE
+    );
+
+    DrawText(
+        "Wrong input: -5 points",
+        120, 430,
+        22,
+        WHITE
+    );
+
+    DrawText(
+        "When the timer reaches 0,",
+        120, 480,
+        22,
+        WHITE
+    );
+
+    DrawText(
+        "GAME OVER.",
+        120, 510,
+        24,
+        WHITE
+    );
+
+
+    // =========================
+    // POWER-UPS / CONTROLS
+    // =========================
+    DrawText(
+        "POWER-UPS / CONTROLS",
+        570, 205,
+        27,
+        WHITE
+    );
+
+    DrawText(
+        "1 - SLOW:",
+        570, 265,
+        22,
+        WHITE
+    );
+
+    DrawText(
+        "Decrease word speed",
+        570, 295,
+        20,
+        WHITE
+    );
+
+
+    DrawText(
+        "2 - RUSH:",
+        570, 345,
+        22,
+        WHITE
+    );
+
+    DrawText(
+        "Increase word speed",
+        570, 375,
+        20,
+        WHITE
+    );
+
+    DrawText(
+        "Correct word = +20 points",
+        570, 405,
+        20,
+        WHITE
+    );
+
+
+    DrawText(
+        "3 - WARP:",
+        570, 455,
+        22,
+        WHITE
+    );
+
+    DrawText(
+        "Add 5 seconds to the timer",
+        570, 485,
+        20,
+        WHITE
+    );
+
+
+    DrawText(
+        "4 - WIPE:",
+        570, 535,
+        22,
+        WHITE
+    );
+
+    DrawText(
+        "Automatically clear all",
+        570, 565,
+        20,
+        WHITE
+    );
+
+    DrawText(
+        "falling words and increase score",
+        570, 595,
+        20,
+        WHITE
+    );
+
+
+    // =========================
+    // QUICK START
+    // =========================
+    DrawText(
+        "QUICK START",
+        390, 650,
+        27,
+        WHITE
+    );
+
+    DrawText(
+        "Type the words you see on screen.",
+        300, 695,
+        20,
+        WHITE
+    );
+
+    DrawText(
+        "Use keys 1-4 strategically to control the action.",
+        230, 725,
+        20,
+        WHITE
+    );
+
+
+    // =========================
+    // CONTINUE
+    // =========================
+    DrawText(
+        "Press ENTER to continue",
+        350, 770,
+        22,
         WHITE
     );
 
     break;
 }
 
+case MEDIUM_INSTRUCTIONS:
+{
+    // Draw the Medium instructions background
+    DrawTexturePro(
+        easyins,
+        (Rectangle){
+            0, 0,
+            (float)easyins.width,
+            (float)easyins.height
+        },
+        (Rectangle){
+            0, 0,
+            (float)screenwidth,
+            (float)screenheight
+        },
+        (Vector2){0, 0},
+        0.0f,
+        WHITE
+    );
+
+
+    // =====================================================
+    // GAME MECHANICS
+    // =====================================================
+     DrawText(
+        "HOW TO PLAY - MEDIUM MODE",
+        250, 100,
+        35,
+        WHITE
+    );
+
+
+    DrawText(
+        "GAME MECHANICS",
+        145, 205,
+        28,
+        WHITE
+    );
+
+    DrawText(
+        "Type the falling words",
+        120, 255,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "before they reach the bottom.",
+        120, 280,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Correct word: +10 points",
+        120, 320,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Missed word: -1 point",
+        120, 355,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Wrong input: -5 points",
+        120, 390,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Timer 0 = Game",
+        120, 430,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "GAME OVER.",
+        120, 455,
+        28,
+        WHITE
+    );
+
+
+    // =====================================================
+    // COLOR-CODED POWER-UPS
+    // =====================================================
+
+    DrawText(
+        "COLOR-CODED POWER-UPS",
+        555, 205,
+        28,
+        WHITE
+    );
+
+
+    // BLUE CIRCLE
+    DrawCircle(
+        580, 265,
+        15,
+        BLUE
+    );
+
+    DrawText(
+        "BLUE POWER-UPS:",
+        610, 250,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Words freeze the screen .",
+        610, 275,
+        24,
+        WHITE
+    );
+
+
+    // PURPLE CIRCLE
+    DrawCircle(
+        580, 340,
+        15,
+        PURPLE
+    );
+
+    DrawText(
+        "PURPLE POWER-UPS:",
+        610, 325,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Words add +5 seconds",
+        610, 350,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "to your timer.",
+        610, 372,
+        24,
+        WHITE
+    );
+
+
+    // GREEN CIRCLE
+    DrawCircle(
+        580, 435,
+        15,
+        GREEN
+    );
+
+    DrawText(
+        "GREEN POWER-UPS:",
+        610, 415,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Words shrink your word list",
+        610, 440,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "to 3-letter words, making",
+        610, 462,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "them easier to type.",
+        610, 484,
+        24,
+        WHITE
+    );
+
+
+    // =====================================================
+    // QUICK START
+    // =====================================================
+
+    DrawText(
+        "QUICK START",
+        390, 550,
+        28,
+        WHITE
+    );
+
+    DrawText(
+        "WARNING:",
+        50, 595,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Some regular, uncolored words are secretly RUSH words.",
+        200, 595,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Typing them will trigger an unpredictable speed-up event.",
+        200, 620,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Be prepared!",
+        450, 645,
+        24,
+        WHITE
+    );
+
+
+    // =====================================================
+    // CONTINUE
+    // =====================================================
+
+    DrawText(
+        "Press ENTER to continue",
+        365, 715,
+        20,
+        WHITE
+    );
+
+    break;
+}
+   
+case HARD_INSTRUCTIONS:
+{
+    // Draw the Hard instructions background
+    DrawTexturePro(
+        easyins,
+        (Rectangle){
+            0, 0,
+            (float)easyins.width,
+            (float)easyins.height
+        },
+        (Rectangle){
+            0, 0,
+            (float)screenwidth,
+            (float)screenheight
+        },
+        (Vector2){0, 0},
+        0.0f,
+        WHITE
+    );
+
+
+    // =====================================================
+    // GAME MECHANICS
+    // =====================================================
+
+    DrawText(
+        "GAME MECHANICS",
+        145, 205,
+        28,
+        WHITE
+    );
+
+    DrawText(
+        "Type the falling words",
+        120, 255,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "before they reach the bottom.",
+        120, 280,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Correct word: +10 points",
+        120, 320,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Missed word: -1 point",
+        120, 355,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Wrong input: -5 points",
+        120, 390,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Timer 0 = Game",
+        120, 430,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "GAME OVER.",
+        120, 455,
+        28,
+        WHITE
+    );
+
+
+    // =====================================================
+    // COLOR-CODED POWER-UPS
+    // =====================================================
+
+    DrawText(
+        "COLOR-CODED POWER-UPS",
+        555, 205,
+        28,
+        WHITE
+    );
+
+
+    // BLUE
+    DrawCircle(
+        580, 265,
+        15,
+        BLUE
+    );
+
+    DrawText(
+        "BLUE POWER-UPS:",
+        610, 250,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Words freeze the screen.",
+        610, 275,
+        24,
+        WHITE
+    );
+
+
+    // PURPLE
+    DrawCircle(
+        580, 340,
+        15,
+        PURPLE
+    );
+
+    DrawText(
+        "PURPLE POWER-UPS:",
+        610, 325,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Words add +5 seconds",
+        610, 350,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "to your timer.",
+        610, 372,
+        24,
+        WHITE
+    );
+
+
+    // GREEN
+    DrawCircle(
+        580, 435,
+        15,
+        GREEN
+    );
+
+    DrawText(
+        "GREEN POWER-UPS:",
+        610, 415,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Words shrink your word list",
+        610, 440,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "to 3-letter words, making",
+        610, 462,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "them easier to type.",
+        610, 484,
+        24,
+        WHITE
+    );
+
+
+    // =====================================================
+    // RED INKBLIND
+    // =====================================================
+
+    DrawCircle(
+        580, 545,
+        15,
+        RED
+    );
+
+    DrawText(
+        "RED: INKBLIND",
+        610, 525,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "A semi-black circle blocks",
+        610, 550,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "your view after activation.",
+        610, 572,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Correct word = +30 points",
+        610, 597,
+        24,
+        WHITE
+    );
+
+
+    // =====================================================
+    // QUICK START
+    // =====================================================
+
+    DrawText(
+        "QUICK START",
+        390, 650,
+        28,
+        WHITE
+    );
+
+    
+    DrawText(
+        "WARNING:",
+        50, 670,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Some regular, uncolored words are secretly RUSH words.",
+        200, 690,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Typing them will trigger an unpredictable speed-up event.",
+        200, 710,
+        24,
+        WHITE
+    );
+
+    DrawText(
+        "Be prepared!",
+        450,750,
+        24,
+        WHITE
+    );
+
+
+    // =====================================================
+    // CONTINUE
+    // =====================================================
+
+
+    
+
+
+
+    DrawText(
+        "Type the falling words and use the power-ups wisely.",
+        210, 690,
+        24,
+        WHITE
+    );
+
+
+    // =====================================================
+    // HOW TO PLAY - HARD MODE
+    // =====================================================
+
+    DrawText(
+        "HOW TO PLAY - HARD MODE",
+        250, 100,
+        30,
+        WHITE
+    );
+
+
+    // =====================================================
+    // CONTINUE
+    // =====================================================
+
+    DrawText(
+        "Press ENTER to continue",
+        365, 750,
+        28,
+        WHITE
+    );
+
+    break;
+}
 
         case LEVEL_SELECT:
         
@@ -1455,6 +2233,7 @@ case EASY_INSTRUCTIONS:
                 DrawButton(TextFormat("SCORE: %d",score),80,20,20,10,6);
     DrawButton(TextFormat("TIME: %.1f s",timer),80,60,20,10,6);
     DrawButton(TextFormat("TARGET: %d",target),80,100,20,10,6);
+    DrawButton("QUIT", screenwidth - 90, 40, 20, 25, 8);
     DrawText("PRESS [ESC] TO PAUSE",700, screenheight - 40, 20, RAYWHITE);
    
         for(int i=0;i<MAX_WORD_ONSCREEN;i++)
@@ -1525,12 +2304,17 @@ if (screenword[i].slashtimer>0.0f)
 
         else if(activeglobalpowerup==powerup_freeze)
         {
-            DrawButton(TextFormat("TIME FROZEN:%.1fs",poweruptimer),screenwidth/2-70,screenheight-100,20,10,5);
+            DrawButton(TextFormat("TIME FROZEN:%.1fs",poweruptimer),screenwidth/2-70,screenheight-150,20,10,5);
 
         }
-          else if(activeglobalpowerup==powerup_hyper_speed||activeglobalpowerup==powerup_rush)
+          else if(activeglobalpowerup==powerup_hyper_speed)
           {
             DrawButton(TextFormat("SCORE RUSH:%.1fs",poweruptimer),screenwidth/2-70,screenheight-100,20,10,5);
+
+          }
+          else if(activeglobalpowerup==powerup_rush)
+          {
+               DrawButton(TextFormat("SCORE RUSH:%.1fs",poweruptimer),screenwidth/2-70,screenheight-150,20,10,5);
 
           }
 
@@ -1551,7 +2335,15 @@ if (screenword[i].slashtimer>0.0f)
            // DrawText("powerup codes:",50,screenheight-50,20,DARKGRAY);
          // Define your specific neon colors
 DrawNeonButton("BLUE FREEZE", 100, 680, 150, 35, neonBlue);
+if(selecteddiff==DIFF_HARD)
+{
 DrawNeonButton("RED INKBLIND", 320, 680, 150, 35, neonRed);
+          }
+          else
+          {
+            DrawButton("DANGER", 350, 685, 20,10,5);
+
+          }
 DrawNeonButton("PURPLE T-Warp", 520, 680, 150, 35, neonPurple);
 DrawNeonButton("GREEN SHRINK", 750, 680, 150, 35, neonGreen);
 
@@ -1833,3 +2625,5 @@ case RECORDS:
     return 0;  
     
     }
+
+
