@@ -846,32 +846,32 @@ void DrawNinjaHoldingScroll(const char *wordText, int centerX, int y, int fontSi
     int scrollX = startX + ninjaSize + spacing;
     int textY = y + 8;
 
-    //  DRAW THE TINY NINJA HELPER
+    
     int headRadius = 15;
     int headCenterX = ninjaX + headRadius + 3;
     int headCenterY = y + (scrollHeight / 2) - 2;
     
-    // A. Draw black outfit head/mask circle
+    
     DrawCircle(headCenterX, headCenterY, headRadius, BLACK);
     
-    // B. Draw small skin-toned eyes cutout slot rectangle
+    
     Color ninjaSkin = (Color){ 255, 220, 180, 255 };
     DrawRectangle(headCenterX - 9, headCenterY - 4, 18, 8, ninjaSkin);
     
-    // C. Draw two tiny glaring black ninja pupils
+    
     DrawCircle(headCenterX - 4, headCenterY - 1, 2, BLACK);
     DrawCircle(headCenterX + 4, headCenterY - 1, 2, BLACK);
     
-    // D. Draw cute little hands overlapping the left edge of the scroll plate
+    
     DrawCircle(scrollX, y +12, 6, BLACK);
     DrawCircle(scrollX, y + scrollHeight - 12, 6, BLACK);
 
-    // DRAW BACKGROUND PAPYRUS CANVAS SHEET 
+    
     Color parchmentColor = (Color){ 242, 222, 179, 255 }; 
     DrawRectangle(scrollX, y, scrollWidth, scrollHeight, scrollcolor);
     DrawRectangleLines(scrollX, y, scrollWidth, scrollHeight, BLACK);
 
-    // DRAW ROLLED WOODEN SCROLL EDGES 
+     
     int handleWidth = 6;
     int handleHeight = scrollHeight + 8;
     Color scrollWoodColor = (Color){ 139, 69, 19, 255 };
@@ -880,7 +880,7 @@ void DrawNinjaHoldingScroll(const char *wordText, int centerX, int y, int fontSi
     DrawRectangleRounded(rightHandle, 0.4f, 4, scrollWoodColor);
     DrawRectangleRoundedLines(rightHandle, 0.4f, 4, BLACK);
 
-    // DRAW TYPING HIGHLIGHT TEXT ON TOP 
+    
     int textStartX = scrollX + 15;
 
     bool isMatchingPartially = false;
@@ -950,50 +950,43 @@ void DrawButton(const char *text, int posX, int posY, int fontSize, int paddingX
 {
     int textWidth = MeasureText(text, fontSize);
     
-    // Calculate box dimensions using your padding style
+    
     int boxX = posX - textWidth / 2 - paddingX;
     int boxY = posY - paddingY;
     int boxWidth = textWidth + (paddingX * 2);
     int boxHeight = fontSize + (paddingY * 2);
 
-    // Pick your neon theme color (Electric Cyan)
+    
     Color neonColor = (Color){ 0, 230, 255, 255 }; 
 
-    // 1. Outer Glow Layers (Larger rectangles with low alpha transparency)
+    
     DrawRectangleRounded((Rectangle){boxX - 6, boxY - 6, boxWidth + 12, boxHeight + 12}, 0.4f, 4, (Color){neonColor.r, neonColor.g, neonColor.b, 35});
     DrawRectangleRounded((Rectangle){boxX - 3, boxY - 3, boxWidth + 6, boxHeight + 6}, 0.4f, 4, (Color){neonColor.r, neonColor.g, neonColor.b, 70});
 
-    // 2. Button Body (Dark semi-transparent inner core with a crisp glowing border)
+    
     DrawRectangleRounded((Rectangle){boxX, boxY, boxWidth, boxHeight}, 0.4f, 4, (Color){10, 12, 20, 220});
     
-    // Corrected: Removed the thickness argument (2.0f) so it fits Raylib's 4-parameter function signature
+    
     DrawRectangleRoundedLines((Rectangle){boxX, boxY, boxWidth, boxHeight}, 0.4f, 4, neonColor);
 
-    // 3. Crisp text drawn centered on top
     DrawText(text, posX - textWidth / 2, posY, fontSize, WHITE);
 }
 
-// Custom button function supporting neon colors
 void DrawNeonButton(const char *text, int posX, int posY, int width, int height, Color themeColor) 
 {
     Rectangle rect = { (float)posX, (float)posY, (float)width, (float)height };
     
-    // Semi transparent dark background so the text is readable
     Color darkBg = { 15, 15, 20, 220 };
     
-    // Draws background box with rounded edges
     DrawRectangleRounded(rect, 0.4f, 4, darkBg);
     
-    // Draws the bright neon outline border 
     DrawRectangleRoundedLines(rect, 0.4f, 4, themeColor);
     
-    // Measures text to center it 
     int fontSize = 18;
     int textWidth = MeasureText(text, fontSize);
     int textX = posX + (width - textWidth) / 2;
     int textY = posY + (height - fontSize) / 2;
     
-    // Draws the text in its themecolor
     DrawText(text, textX, textY, fontSize, themeColor);
 }
 
@@ -1012,6 +1005,7 @@ Texture2D easy = LoadTexture("coverphoto_easy.png");
 Texture2D records =LoadTexture("coverphoto_hard.png");
 Texture2D mainmenu =LoadTexture("coverphoto_medium.png");
 Texture2D easyins=LoadTexture("instructions.png");
+Texture2D aboutGame = LoadTexture("about_game.png");
 //if(e asy.id<=0)
 //{
 //TraceLog(LOG_WARNING,"EMAGE FAILED TO LOAD");
@@ -1078,6 +1072,10 @@ GameScreen currentScreen = TITLE;
     else if (key == KEY_R)
     {
         currentScreen = RECORDS;
+    }
+    else if(key==KEY_A)
+    {
+        currentScreen = ABOUT_GAME;
     }
     else if (key == KEY_H)
     {
@@ -1190,7 +1188,19 @@ case MEDIUM_INSTRUCTIONS:
 
     break;
 }
+case HARD_INSTRUCTIONS:
+{
+    if (key == KEY_ENTER)
+    {
+        currentScreen = LEVEL_SELECT;
+    }
+    else if (key == KEY_BACKSPACE)
+    {
+        currentScreen = DIFFICULTY;
+    }
 
+    break;
+}
 case LEVEL_SELECT:
 {
     if (key == KEY_ONE)
@@ -1322,6 +1332,20 @@ case GAMEOVER:
         break;
     }
 
+    case ABOUT_GAME:
+{
+    if (key == KEY_ENTER)
+    {
+        currentScreen = MAIN_MENU;
+    }
+    else if (key == KEY_BACKSPACE)
+    {
+        currentScreen = MAIN_MENU;
+    }
+
+    break;
+}
+
     }
 
         BeginDrawing();
@@ -1355,11 +1379,11 @@ case GAMEOVER:
             DrawRectangle(0, 0, screenwidth, screenheight, (Color){ 0, 0, 0, 0});
             DrawButton(ismuted ? "Unmute" : "Mute", screenwidth - 90, 40, 20, 15, 8);
             DrawButton("MAIN MENU", screenwidth / 2, 120,50,30, 10);
-            DrawButton("[P] Play Game", screenwidth / 2, 230, 35, 30, 10);
-        
-            DrawButton("[R] View Records", screenwidth / 2, 300, 35, 30, 10);
+            DrawButton("[P] ASSASSINATE", screenwidth / 2, 230, 35, 30, 10);
+        DrawButton("[A] NINJA ARCHIVES",screenwidth/2,300,35,30,10);
+            DrawButton("[R] HALL OF NINJAS", screenwidth / 2, 370, 35, 30, 10);
             
-            DrawButton("[X] Exit", screenwidth / 2, 370, 25, 25, 8);
+            DrawButton("[X] EXIT SHADOWS", screenwidth / 2, 450, 25, 25, 8);
             //DrawButton("BACKSPACE : Go Back", screenwidth / 2, 450, 25, 25, 8);
             break;
         }
@@ -1440,9 +1464,6 @@ case NAME_ENTRY:
         WHITE
     );
 
-    // =========================
-    // TITLE
-    // =========================
     DrawText(
         "HOW TO PLAY - EASY LEVEL",
         300, 105,
@@ -1451,9 +1472,6 @@ case NAME_ENTRY:
     );
 
 
-    // =========================
-    // GAMEPLAY
-    // =========================
     DrawText("GAMEPLAY", 120, 205, 30, WHITE);
 
     DrawText(
@@ -1506,9 +1524,6 @@ case NAME_ENTRY:
     );
 
 
-    // =========================
-    // POWER-UPS / CONTROLS
-    // =========================
     DrawText(
         "POWER-UPS / CONTROLS",
         570, 205,
@@ -1590,9 +1605,6 @@ case NAME_ENTRY:
     );
 
 
-    // =========================
-    // QUICK START
-    // =========================
     DrawText(
         "QUICK START",
         390, 650,
@@ -1615,9 +1627,6 @@ case NAME_ENTRY:
     );
 
 
-    // =========================
-    // CONTINUE
-    // =========================
     DrawText(
         "Press ENTER to continue",
         350, 770,
@@ -1649,9 +1658,6 @@ case MEDIUM_INSTRUCTIONS:
     );
 
 
-    // =====================================================
-    // GAME MECHANICS
-    // =====================================================
      DrawText(
         "HOW TO PLAY - MEDIUM MODE",
         250, 100,
@@ -1717,9 +1723,6 @@ case MEDIUM_INSTRUCTIONS:
     );
 
 
-    // =====================================================
-    // COLOR-CODED POWER-UPS
-    // =====================================================
 
     DrawText(
         "COLOR-CODED POWER-UPS",
@@ -1816,9 +1819,6 @@ case MEDIUM_INSTRUCTIONS:
     );
 
 
-    // =====================================================
-    // QUICK START
-    // =====================================================
 
     DrawText(
         "QUICK START",
@@ -1856,9 +1856,6 @@ case MEDIUM_INSTRUCTIONS:
     );
 
 
-    // =====================================================
-    // CONTINUE
-    // =====================================================
 
     DrawText(
         "Press ENTER to continue",
@@ -1891,9 +1888,6 @@ case HARD_INSTRUCTIONS:
     );
 
 
-    // =====================================================
-    // GAME MECHANICS
-    // =====================================================
 
     DrawText(
         "GAME MECHANICS",
@@ -1952,9 +1946,7 @@ case HARD_INSTRUCTIONS:
     );
 
 
-    // =====================================================
-    // COLOR-CODED POWER-UPS
-    // =====================================================
+    
 
     DrawText(
         "COLOR-CODED POWER-UPS",
@@ -2051,9 +2043,6 @@ case HARD_INSTRUCTIONS:
     );
 
 
-    // =====================================================
-    // RED INKBLIND
-    // =====================================================
 
     DrawCircle(
         580, 545,
@@ -2090,10 +2079,6 @@ case HARD_INSTRUCTIONS:
     );
 
 
-    // =====================================================
-    // QUICK START
-    // =====================================================
-
     DrawText(
         "QUICK START",
         390, 650,
@@ -2104,53 +2089,20 @@ case HARD_INSTRUCTIONS:
     
     DrawText(
         "WARNING:",
-        50, 670,
+        300, 690,
         24,
         WHITE
     );
 
     DrawText(
-        "Some regular, uncolored words are secretly RUSH words.",
-        200, 690,
+        "SAME AS MEDIUM",
+        450, 690,
         24,
         WHITE
     );
-
-    DrawText(
-        "Typing them will trigger an unpredictable speed-up event.",
-        200, 710,
-        24,
-        WHITE
-    );
-
-    DrawText(
-        "Be prepared!",
-        450,750,
-        24,
-        WHITE
-    );
-
-
-    // =====================================================
-    // CONTINUE
-    // =====================================================
 
 
     
-
-
-
-    DrawText(
-        "Type the falling words and use the power-ups wisely.",
-        210, 690,
-        24,
-        WHITE
-    );
-
-
-    // =====================================================
-    // HOW TO PLAY - HARD MODE
-    // =====================================================
 
     DrawText(
         "HOW TO PLAY - HARD MODE",
@@ -2160,9 +2112,6 @@ case HARD_INSTRUCTIONS:
     );
 
 
-    // =====================================================
-    // CONTINUE
-    // =====================================================
 
     DrawText(
         "Press ENTER to continue",
@@ -2417,6 +2366,202 @@ DrawButton("PRESS [ESCAPE] TO RETURN",screenwidth/2,screenheight/2+60,30,20,8);
              break;  
             }
 
+case ABOUT_GAME:
+{
+    // ==========================================
+    // BACKGROUND
+    // ==========================================
+
+    DrawTexturePro(
+        easyins,
+        (Rectangle){
+            0, 0,
+            (float)easyins.width,
+            (float)easyins.height
+        },
+        (Rectangle){
+            0, 0,
+            (float)screenwidth,
+            (float)screenheight
+        },
+        (Vector2){0, 0},
+        0.0f,
+        WHITE
+    );
+
+
+    // ==========================================
+    // GAME TITLE
+    // ==========================================
+
+    DrawText(
+        "GAME: TYPING NINJA",
+        300, 70,
+        40,
+        WHITE
+    );
+
+
+    // ==========================================
+    // DESCRIPTION
+    // ==========================================
+
+    DrawText(
+        "DESCRIPTION:",
+        90, 150,
+        30,
+        WHITE
+    );
+
+    DrawText(
+        "Typing Ninja is a game designed to improve",
+        90, 190,
+        30,
+        WHITE
+    );
+
+    DrawText(
+        "the player's typing speed and accuracy.",
+        90, 220,
+        30,
+        WHITE
+    );
+
+    DrawText(
+        "The game features different combos that keep",
+        90, 260,
+        30,
+        WHITE
+    );
+
+    DrawText(
+        "players interested and engaged while playing.",
+        90, 290,
+        30,
+        WHITE
+    );
+
+    DrawText(
+        "Players must think carefully before using",
+        90, 330,
+        30,
+        WHITE
+    );
+
+    DrawText(
+        "each combo, which also helps develop",
+        90, 360,
+        30,
+        WHITE
+    );
+
+    DrawText(
+        "strategic thinking and decision-making skills.",
+        90, 390,
+        30,
+        WHITE
+    );
+
+
+    // ==========================================
+    // DEVELOPERS - LEFT SIDE
+    // ==========================================
+
+    DrawText(
+        "DEVELOPERS:",
+        90, 470,
+        35,
+        WHITE
+    );
+
+    DrawText(
+        "Developer 1: Tasfia Tultul",
+        90, 510,
+        25,
+        WHITE
+    );
+
+    DrawText(
+        "ID: 2505143",
+        90, 540,
+        20,
+        WHITE
+    );
+
+    DrawText(
+        "Developer 2: Arshia Armin Jhil",
+        90, 585,
+        25,
+        WHITE
+    );
+
+    DrawText(
+        "ID: 2505145",
+        90, 615,
+        20,
+        WHITE
+    );
+
+
+    // ==========================================
+    // SUPERVISOR - RIGHT SIDE
+    // ==========================================
+
+    DrawText(
+        "SUPERVISOR:",
+        680, 470,
+        35,
+        WHITE
+    );
+
+    DrawText(
+        "IMTIAZ KABIR",
+        680, 515,
+        40,
+        WHITE
+    );
+
+
+    // ==========================================
+    // CREDITS - BOTTOM
+    // ==========================================
+
+    DrawText(
+        "CREDITS:",
+        90, 660,
+        40,
+        WHITE
+    );
+
+    DrawText(
+        "Photos: Collected from Pinterest",
+        90, 720,
+        25,
+        WHITE
+    );
+
+    DrawText(
+        "Audio: Collected from Pixabay",
+        90, 750,
+        25,
+        WHITE
+    );
+
+
+    // ==========================================
+    // BACK
+    // ==========================================
+
+    DrawText(
+        "Press ENTER to continue",
+        680, 750,
+        20,
+        WHITE
+    );
+
+    break;
+}
+
 
 case RECORDS:
 {
@@ -2616,6 +2761,7 @@ case RECORDS:
     UnloadTexture(ninjaLogo2);
     UnloadTexture(mainmenu);
     UnloadTexture(easyins);
+    UnloadTexture(aboutGame);
     StopMusicStream(backgroundMusic);
     UnloadMusicStream(backgroundMusic);
     UnloadSound(slicesound);
