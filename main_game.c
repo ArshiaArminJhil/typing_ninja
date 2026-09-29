@@ -249,12 +249,12 @@ void SaveRecord()
     }
 }
 
-void LoadPlayerProgress()
+        void LoadPlayerProgress()
 {
     FILE *f = fopen("records.txt", "r");
     bool found = false;
 
-    // Always reset progress first
+    // Always reset progress 
     maxdifficultyunlocked = DIFF_EASY;
 
     maxlevelunlocked[DIFF_EASY] = 1;
@@ -1446,7 +1446,6 @@ case NAME_ENTRY:
 
         case EASY_INSTRUCTIONS:
 {
-    // Draw your first image as the background
     DrawTexturePro(
         easyins,
         (Rectangle){
@@ -1869,7 +1868,7 @@ case MEDIUM_INSTRUCTIONS:
    
 case HARD_INSTRUCTIONS:
 {
-    // Draw the Hard instructions background
+
     DrawTexturePro(
         easyins,
         (Rectangle){
@@ -2282,7 +2281,6 @@ if (screenword[i].slashtimer>0.0f)
           else
           {
            // DrawText("powerup codes:",50,screenheight-50,20,DARKGRAY);
-         // Define your specific neon colors
 DrawNeonButton("BLUE FREEZE", 100, 680, 150, 35, neonBlue);
 if(selecteddiff==DIFF_HARD)
 {
@@ -2299,7 +2297,7 @@ DrawNeonButton("GREEN SHRINK", 750, 680, 150, 35, neonGreen);
           }
 
 
-                     DrawText(TextFormat("INPUT:%s",inputword),50,750,40,RED);
+      DrawText(TextFormat("INPUT:%s",inputword),50,750,40,RED);
                      if (inkblindnesstimer > 0.0f) 
 {
     
@@ -2368,9 +2366,7 @@ DrawButton("PRESS [ESCAPE] TO RETURN",screenwidth/2,screenheight/2+60,30,20,8);
 
 case ABOUT_GAME:
 {
-    // ==========================================
-    // BACKGROUND
-    // ==========================================
+    
 
     DrawTexturePro(
         easyins,
@@ -2390,10 +2386,6 @@ case ABOUT_GAME:
     );
 
 
-    // ==========================================
-    // GAME TITLE
-    // ==========================================
-
     DrawText(
         "GAME: TYPING NINJA",
         300, 70,
@@ -2401,11 +2393,8 @@ case ABOUT_GAME:
         WHITE
     );
 
-
-    // ==========================================
     // DESCRIPTION
-    // ==========================================
-
+    
     DrawText(
         "DESCRIPTION:",
         90, 150,
@@ -2462,11 +2451,8 @@ case ABOUT_GAME:
         WHITE
     );
 
-
-    // ==========================================
     // DEVELOPERS - LEFT SIDE
-    // ==========================================
-
+    
     DrawText(
         "DEVELOPERS:",
         90, 470,
@@ -2502,10 +2488,7 @@ case ABOUT_GAME:
         WHITE
     );
 
-
-    // ==========================================
     // SUPERVISOR - RIGHT SIDE
-    // ==========================================
 
     DrawText(
         "SUPERVISOR:",
@@ -2521,10 +2504,7 @@ case ABOUT_GAME:
         WHITE
     );
 
-
-    // ==========================================
     // CREDITS - BOTTOM
-    // ==========================================
 
     DrawText(
         "CREDITS:",
@@ -2547,10 +2527,7 @@ case ABOUT_GAME:
         WHITE
     );
 
-
-    // ==========================================
     // BACK
-    // ==========================================
 
     DrawText(
         "Press ENTER to continue",
@@ -2575,7 +2552,7 @@ case RECORDS:
     DrawRectangle(0, 0, screenwidth, screenheight,
                   (Color){ 0, 0, 0, 150 });
 
-    // Title & Table Headers matching your sketch layout
+    // Title & Table Headers matching sketch layout
     DrawButton("NINJA LEADERBOARD",
                screenwidth / 2, 70, 30, 25, 10);
 
@@ -2629,7 +2606,7 @@ case RECORDS:
             else if (tableRecords[j + 1].difficultyUnlocked == DIFF_MEDIUM)
                 levelB = tableRecords[j + 1].mediumLevel;
             else
-                levelB = tableRecords[j + 1].hardLevel;
+                levelB = tableRecords[j + 1].hardLevel;  
 
             int scoreA =
                 (tableRecords[j].difficultyUnlocked * 3) + levelA;
