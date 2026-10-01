@@ -446,8 +446,8 @@ void activatepowerup(poweruptype type)
         {
             speedmodifier=1.0f;
             scoremultiplier=3;
-            poweruptimer=10.0f;
-            inkblindnesstimer=10.0f;
+            poweruptimer=4.0f;
+            inkblindnesstimer=4.0f;
             activeglobalpowerup==powerup_ink;
             break;
         }
@@ -574,6 +574,10 @@ if(inkblindnesstimer>0.0f)
 if(inkblindnesstimer<0.0f)
 {
     inkblindnesstimer=0.0f;
+            speedmodifier=1.0f;
+        scoremultiplier=1;
+        activeglobalpowerup=powerup_none;
+
 }
 
  if(activeglobalpowerup!=powerup_none)
@@ -2298,16 +2302,27 @@ DrawNeonButton("GREEN SHRINK", 750, 680, 150, 35, neonGreen);
 
 
       DrawText(TextFormat("INPUT:%s",inputword),50,750,40,RED);
+
+
                      if (inkblindnesstimer > 0.0f) 
 {
     
     int centerX = screenwidth / 2;
     int centerY = screenheight / 2;
+
+    float fraction=inkblindnesstimer/4.0f;
+    if(fraction>1.0f)
+    {
+        fraction=1.0f;
+    }
+    if(fraction<0.0f)
+    {
+        fraction=0.0f;
+    }
     
-    
-    unsigned char alpha = (unsigned char)(200 * (inkblindnesstimer / 4.0f)); 
-    if (alpha < 50) alpha = 50; 
-    
+    unsigned char alpha = (unsigned char)(200 * fraction); 
+    if (alpha >5)
+    {
     Color inkColor = (Color){ 15, 15, 20, alpha }; 
     
     
@@ -2321,6 +2336,7 @@ DrawNeonButton("GREEN SHRINK", 750, 680, 150, 35, neonGreen);
     
     
     DrawText("INK BLINDNESS ACTIVE! (TRIPLE POINTS)", centerX - 230, centerY - 15, 24, (Color){ 200, 30, 30, alpha });
+}
 }
 
  if (isPaused)

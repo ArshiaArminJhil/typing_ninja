@@ -1,2 +1,4 @@
 tultul 2 3 3 2
 Adrika 0 1 1 1
+adreeta 0 2 1 1
+imtiaz 0 2 1 1
