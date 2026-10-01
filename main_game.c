@@ -446,8 +446,8 @@ void activatepowerup(poweruptype type)
         {
             speedmodifier=1.0f;
             scoremultiplier=3;
-            poweruptimer=4.0f;
-            inkblindnesstimer=4.0f;
+            poweruptimer=7.0f;
+            inkblindnesstimer=7.0f;
             activeglobalpowerup==powerup_ink;
             break;
         }
@@ -807,15 +807,15 @@ void levelsetting(Difficultymode diff, int level)
         case DIFF_MEDIUM:
         {
             speed = 125.0f;
-            if(level == 1)      { timer = 60.0f; target = 200; }
-            else if(level == 2) { timer = 50.0f; target = 250; }
-            else                { timer = 40.0f; target = 250; }
+            if(level == 1)      { timer = 60.0f; target = 250; }
+            else if(level == 2) { timer = 50.0f; target = 300; }
+            else                { timer = 40.0f; target = 350; }
             loadword("wordmedium.txt");
             break;
         }
         case DIFF_HARD:
         {
-            speed = 100.0f;
+            speed = 135.0f;
             if(level == 1)      { timer = 60.0f; target = 250; }
             else if(level == 2) { timer = 50.0f; target = 300; }
             else                { timer = 40.0f; target = 400; }
@@ -2310,7 +2310,7 @@ DrawNeonButton("GREEN SHRINK", 750, 680, 150, 35, neonGreen);
     int centerX = screenwidth / 2;
     int centerY = screenheight / 2;
 
-    float fraction=inkblindnesstimer/4.0f;
+    float fraction=inkblindnesstimer/7.0f;
     if(fraction>1.0f)
     {
         fraction=1.0f;
